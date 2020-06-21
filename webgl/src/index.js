@@ -1,4 +1,5 @@
 import './style.css';
+import Formula from 'fparser';
 /*============= Creating a canvas ======================*/
 
 
@@ -28,6 +29,15 @@ let vMin = 0.0,
 
 let points = []
 let scl = 1;
+
+var x_input = document.createElement("input");
+x_input.id = "x_input"
+x_input.defaultValue = 'cos(u)'
+document.body.appendChild(x_input);
+var x_formula = new Formula('cos(u)');
+// x_formula = new Formula(x_input.value);
+var y_formula = new Formula('sin(u)');
+var z_formula = new Formula('v');
 // for (let v = vMin; v <= vMax; v += vStep) {
 //     for (let u = uMin; u <= uMax; u += uStep) {
 for (let j = 0; j <= vPoints; j++) {
@@ -40,6 +50,9 @@ for (let j = 0; j <= vPoints; j++) {
             // x = Math.sin(v) * Math.cos(u)
             // y = Math.sin(v) * Math.sin(u)
             // z = Math.cos(v)
+        x = x_formula.evaluate({ u: u, v: v });
+        y = y_formula.evaluate({ u: u, v: v });
+        z = z_formula.evaluate({ u: u, v: v }) - vMax / 2;
         x *= scl
         y *= scl
         z *= scl
