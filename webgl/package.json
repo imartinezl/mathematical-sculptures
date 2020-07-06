@@ -24,6 +24,7 @@
         "file-loader": "^6.0.0",
         "fparser": "^1.4.0",
         "html-webpack-plugin": "^4.3.0",
+        "rc-color-picker": "^1.2.6",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "style-loader": "^1.2.1",

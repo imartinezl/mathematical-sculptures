@@ -1,18 +1,19 @@
+import 'rc-color-picker/assets/index.css';
+import ColorPicker from 'rc-color-picker';
 import React, { Component } from "react";
 import Formula from 'fparser';
-
 
 class Canvas extends Component {
     constructor(props) {
         super(props)
 
         // global variables
-
+        
         this.canvas = null;
         this.gl = null;
         this.shaderProgram = null;
         this.uniforms = null;
-
+        
         this.AMORTIZATION = 0.0;
         this.drag = false;
         this.zoom = false;
@@ -24,10 +25,12 @@ class Canvas extends Component {
         
         this.THETA = 0;
         this.PHI = 0;
+
+        this.colorBack= '#FF0000';
+        this.colorShape= '#000000';
     }
     componentDidMount() {
         ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
-        //this.canvas = canvas, this.gl = gl, this.shaderProgram = shaderProgram, this.uniforms = uniforms;
         this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
     }
     
@@ -128,7 +131,7 @@ class Canvas extends Component {
         let fragCode =
             `precision mediump float;
             void main(void) {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 0.3);
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 0.3);
             }`;
 
         let vertShader = gl.createShader(gl.VERTEX_SHADER);
@@ -328,8 +331,11 @@ class Canvas extends Component {
         gl.disable(gl.DEPTH_TEST);
 
         // clear canvas
-        gl.clearColor(0.1, 0.1, 0.1, 0.9);
-        gl.clearDepth(10.0);
+        //gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        let [r, g, b] = this.hexToRgb(this.colorBack)
+        gl.clearColor(r, g, b, 1.0);
+
+        gl.clearDepth(1.0);
         gl.viewport(0.0, 0.0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -341,12 +347,29 @@ class Canvas extends Component {
         window.requestAnimationFrame(this.draw.bind(this, canvas, gl, shaderProgram, uniforms, attributes));
     }
 
+    hexToRgb = (hex) => 
+        hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+        ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+        .substring(1).match(/.{2}/g)
+        .map(x => parseInt(x, 16)/255)
+    
+    handleColorShape = (color) => {
+        this.colorShape = color.color
+        this.canvas.style.background = color.color
+    };
+    
+    handleColorBack = (color) => {
+        this.colorBack = color.color;
+    };
+
     render() {
         return (
             <div>
                 <canvas id="mycanvas" width="800" height="800"
-                    style={{ background: "white" }}>
+                    style={{ background: this.colorShape, cursor: "crosshair"}}>
                 </canvas>
+                <ColorPicker color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/>
+                <ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/>
             </div>
         );
     }
