@@ -15,17 +15,15 @@ class Canvas extends Component {
 
         this.AMORTIZATION = 0.95;
         this.drag = false;
+        this.zoom = false;
         this.pX = null;
         this.pY = null;
         this.dX = 0;
         this.dY = 0;
-
+        this.dZ = 0;
+        
         this.THETA = 0;
         this.PHI = 0;
-
-        this.FX = 'v*cos(u)', 
-        this.FY = 'v*sin(u)', 
-        this.FZ = 'u';
     }
     componentDidMount() {
         ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
@@ -58,46 +56,29 @@ class Canvas extends Component {
         return {canvas, gl}
     }
     
-    validateFormula = (F) => {
-        let acceptableVars = ['u', 'v']
-        try {
-            let formulaTMP = new Formula(F);
-            let usedVariables = formulaTMP.getVariables()
-            usedVariables.forEach(e => {
-                if(!acceptableVars.includes(e)){
-                    throw "Not in aceptable variables list"
-                }
-            });
-            formulaTMP.evaluate({ u: 0, v: 0 });
-            return true
-        } catch (error) {
-            console.error(error)
-            return false
-        }
-    }
+    
     generateVertices = () => {
         console.log("generating points");
-        let uMin = 0.0
-        let uMax = 2 * Math.PI
+        let {FX, FY, FZ, uMin, uMax, vMin, vMax} = this.props
+        //let uMin = 0.0
+        //let uMax = 2 * Math.PI
         let uPoints = 40
         let uStep = (uMax - uMin) / uPoints
 
-        let vMin = 0.0
-        let vMax = Math.PI
+        //let vMin = 0.0
+        //let vMax = Math.PI
         let vPoints = 40
         let vStep = (vMax - vMin) / vPoints
 
-        let {FX, FY, FZ} = this.props
-        console.log("PRE", FX, FY, FZ)
+        // console.log("PRE", FX, FY, FZ)
+        // if (this.validateFormula(FX)) this.FX = FX
+        // if (this.validateFormula(FY)) this.FY = FY
+        // if (this.validateFormula(FZ)) this.FZ = FZ
+        // console.log("POS", this.FX, this.FY, this.FZ)
 
-        if (this.validateFormula(FX)) this.FX = FX
-        if (this.validateFormula(FY)) this.FY = FY
-        if (this.validateFormula(FZ)) this.FZ = FZ
-        
-        console.log("POS", this.FX, this.FY, this.FZ)
-        let x_formula = new Formula(this.FX);
-        let y_formula = new Formula(this.FY);
-        let z_formula = new Formula(this.FZ);
+        let x_formula = new Formula(FX);
+        let y_formula = new Formula(FY);
+        let z_formula = new Formula(FZ);
         let scl = 1;
         let vertices = [];
         for (let j = 0; j <= vPoints; j++) {
@@ -105,7 +86,7 @@ class Canvas extends Component {
                 let u = uStep * i
                 let v = vStep * j
                 let x = x_formula.evaluate({ u: u, v: v });
-                let y = y_formula.evaluate({ u: u, v: v });
+                let y =  y_formula.evaluate({ u: u, v: v });
                 let z = z_formula.evaluate({ u: u, v: v }) - vMax / 2;
                 x *= scl
                 y *= scl
@@ -187,10 +168,17 @@ class Canvas extends Component {
         ];
     }
 
+    getI4 = () => {
+        return [1,0,0,0,
+                0,1,0,0,
+                0,0,1,0,
+                0,0,0,1];
+    }
+
     initMatrix = (canvas) => {
         let projMatrix = this.getProjection(40, canvas.width / canvas.height, 1, 100);
-        let moMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-        let viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+        let moMatrix = this.getI4();
+        let viewMatrix = this.getI4();
         viewMatrix[14] = viewMatrix[14] - 7;
 
         return {projMatrix, moMatrix, viewMatrix}
@@ -242,6 +230,9 @@ class Canvas extends Component {
         m[5] = c * m[5] + s * mv4;
         m[9] = c * m[9] + s * mv8;
     }
+    translateZ = (m, t) => {
+        m[14]+=t;
+    }
 
     mouseDown = (e) => {
         // console.log("mouseDown")
@@ -269,11 +260,19 @@ class Canvas extends Component {
         e.preventDefault();
     }
 
+    mouseWheel = (e) => {
+        // console.log("mousewheel", e)
+        this.zoom = true
+        this.dZ = e.deltaY // > 0 ? 1 : -1;
+        e.preventDefault();
+    }
+
     mouseEvents = (canvas) => {
         canvas.addEventListener("mousedown", this.mouseDown, false);
         canvas.addEventListener("mouseup", this.mouseUp, false);
         canvas.addEventListener("mouseout", this.mouseUp, false);
         canvas.addEventListener("mousemove", e => this.mouseMove(e, canvas), false);
+        canvas.addEventListener("wheel", e => this.mouseWheel(e), false);
     }
 
     drawPoints = (gl, n) => {
@@ -282,7 +281,7 @@ class Canvas extends Component {
 
     drawLines = (gl, uPoints, vPoints) => {
         for (let i = 0; i <= vPoints; i++) {
-            gl.drawArrays(gl.LINE_LOOP, (uPoints + 1) * i, uPoints + 1);
+            gl.drawArrays(gl.LINE_STRIP, (uPoints + 1) * i, uPoints+1);
         }
     }
 
@@ -297,10 +296,21 @@ class Canvas extends Component {
 
         //this.viewMatrix[14] = this.viewMatrix[14] - 0.005
         //console.log(canvas, gl, shaderProgram, uniforms, attributes)
-        uniforms.moMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; // set model matrix to I4
+        uniforms.moMatrix = this.getI4();
 
         this.rotateY(uniforms.moMatrix, this.THETA);
         this.rotateX(uniforms.moMatrix, this.PHI);
+        if(this.zoom){
+            let oldZoom = uniforms.viewMatrix[14]
+            let newZoom = oldZoom - this.dZ * 0.0075
+            uniforms.viewMatrix[14] = Math.max(-20, Math.min(-2, newZoom));
+            this.zoom = false
+        }else{
+            this.dZ *= 0.75;
+            let oldZoom = uniforms.viewMatrix[14]
+            let newZoom = oldZoom - this.dZ * 0.0075
+            uniforms.viewMatrix[14] = Math.max(-20, Math.min(-2, newZoom));
+        }
 
         // enable alpha blending
         gl.enable(gl.DEPTH_TEST);
