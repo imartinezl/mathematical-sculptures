@@ -13,7 +13,7 @@ class Canvas extends Component {
         this.shaderProgram = null;
         this.uniforms = null;
 
-        this.AMORTIZATION = 0.95;
+        this.AMORTIZATION = 0.0;
         this.drag = false;
         this.zoom = false;
         this.pX = null;
@@ -62,12 +62,12 @@ class Canvas extends Component {
         let {FX, FY, FZ, uMin, uMax, vMin, vMax} = this.props
         //let uMin = 0.0
         //let uMax = 2 * Math.PI
-        let uPoints = 40
+        let uPoints = 60
         let uStep = (uMax - uMin) / uPoints
 
         //let vMin = 0.0
         //let vMax = Math.PI
-        let vPoints = 40
+        let vPoints = 120
         let vStep = (vMax - vMin) / vPoints
 
         // console.log("PRE", FX, FY, FZ)
@@ -81,13 +81,22 @@ class Canvas extends Component {
         let z_formula = new Formula(FZ);
         let scl = 1;
         let vertices = [];
+        let xMin = x_formula.evaluate({u: uMin, v:vMin})
+        let xMax = x_formula.evaluate({u: uMax, v:vMax})
+        let xMean = (xMin + xMax)/2
+        let yMin = y_formula.evaluate({u: uMin, v:vMin})
+        let yMax = y_formula.evaluate({u: uMax, v:vMax})
+        let yMean = (yMin + yMax)/2
+        let zMin = z_formula.evaluate({u: uMin, v:vMin})
+        let zMax = z_formula.evaluate({u: uMax, v:vMax})
+        let zMean = (zMin + zMax)/2
         for (let j = 0; j <= vPoints; j++) {
             for (let i = 0; i <= uPoints; i++) {
                 let u = uStep * i
                 let v = vStep * j
-                let x = x_formula.evaluate({ u: u, v: v });
-                let y =  y_formula.evaluate({ u: u, v: v });
-                let z = z_formula.evaluate({ u: u, v: v }) - vMax / 2;
+                let x = x_formula.evaluate({ u: u, v: v }) - xMean;
+                let y = y_formula.evaluate({ u: u, v: v }) - yMean;
+                let z = z_formula.evaluate({ u: u, v: v }) - zMean;
                 x *= scl
                 y *= scl
                 z *= scl
@@ -119,7 +128,7 @@ class Canvas extends Component {
         let fragCode =
             `precision mediump float;
             void main(void) {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 0.8);
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 0.3);
             }`;
 
         let vertShader = gl.createShader(gl.VERTEX_SHADER);
@@ -281,7 +290,7 @@ class Canvas extends Component {
 
     drawLines = (gl, uPoints, vPoints) => {
         for (let i = 0; i <= vPoints; i++) {
-            gl.drawArrays(gl.LINE_STRIP, (uPoints + 1) * i, uPoints+1);
+            gl.drawArrays(gl.LINE_STRIP, (uPoints + 1) * i, uPoints+1); //LINE_STRIP vs LINE_LOOP
         }
     }
 
@@ -303,24 +312,24 @@ class Canvas extends Component {
         if(this.zoom){
             let oldZoom = uniforms.viewMatrix[14]
             let newZoom = oldZoom - this.dZ * 0.0075
-            uniforms.viewMatrix[14] = Math.max(-20, Math.min(-2, newZoom));
+            uniforms.viewMatrix[14] = Math.max(-30, Math.min(-2, newZoom));
             this.zoom = false
         }else{
             this.dZ *= 0.75;
             let oldZoom = uniforms.viewMatrix[14]
             let newZoom = oldZoom - this.dZ * 0.0075
-            uniforms.viewMatrix[14] = Math.max(-20, Math.min(-2, newZoom));
+            uniforms.viewMatrix[14] = Math.max(-30, Math.min(-2, newZoom));
         }
 
         // enable alpha blending
         gl.enable(gl.DEPTH_TEST);
-        gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
+        gl.blendFunc(gl.GL_ONE, gl.ONE_MINUS_SRC_COLOR);
         gl.enable(gl.BLEND);
         gl.disable(gl.DEPTH_TEST);
 
         // clear canvas
         gl.clearColor(0.1, 0.1, 0.1, 0.9);
-        gl.clearDepth(1.0);
+        gl.clearDepth(10.0);
         gl.viewport(0.0, 0.0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -335,8 +344,8 @@ class Canvas extends Component {
     render() {
         return (
             <div>
-                <canvas id="mycanvas" width="600" height="600"
-                    style={{ background: "antiquewhite" }}>
+                <canvas id="mycanvas" width="800" height="800"
+                    style={{ background: "white" }}>
                 </canvas>
             </div>
         );
