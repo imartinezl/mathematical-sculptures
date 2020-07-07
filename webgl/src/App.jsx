@@ -160,16 +160,6 @@ class App extends Component {
                         <Input placeholder="formula for z" addonBefore="z =" onChange={this.handleFZ}/>
                     </Form.Item>
                 </Form>
-                <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
-                    uMin={this.state.uMin} uMax={this.state.uMax}
-                    vMin={this.state.vMin} vMax={this.state.vMax} />
-                <DirectoryTree
-                    showLine={false}
-                    showIcon={false}
-                    onSelect={this.onSelect}
-                    treeData={treeData}
-                    height={250}
-                />
                 <br />
                 <Input.Group compact>
                     <InputNumber style={{ textAlign: 'center', width: 75 }}
@@ -195,6 +185,16 @@ class App extends Component {
                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                         onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                 </Input.Group>
+                <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
+                    uMin={this.state.uMin} uMax={this.state.uMax}
+                    vMin={this.state.vMin} vMax={this.state.vMax} />
+                <DirectoryTree
+                    showLine={false}
+                    showIcon={false}
+                    onSelect={this.onSelect}
+                    treeData={treeData}
+                    height={250}
+                />
             </div>
         );
     }
