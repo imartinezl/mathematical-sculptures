@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Canvas from "./Canvas.jsx";
 import Formula from 'fparser';
 
-import { Input, Tree, InputNumber, Form } from 'antd';
+import { Input, Tree, InputNumber, Form, Row, Col } from 'antd';
 const { DirectoryTree } = Tree;  
 import 'antd/dist/antd.css';
 
@@ -30,7 +30,6 @@ class App extends Component {
     }
     componentDidUpdate() {
         console.log("component update")
-        console.log(this.form)
         console.log(this.state)
     }
     validateFormula = (F) => {
@@ -142,7 +141,9 @@ class App extends Component {
     render() {
 
         return (
-            <div>
+            <Row>
+                <Col flex="250px">
+
                 <h2> Hello, World! </h2>
                 <Form ref={this.formRef} layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
                 initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: '0'}}
@@ -166,7 +167,7 @@ class App extends Component {
                         defaultValue={0} min={0} max={100} step={1}
                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                         onChange={this.handleUMin} value={this.state.uMin / Math.PI}
-                    />
+                        />
                     <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
                     <InputNumber style={{ textAlign: 'center', width: 75 }}
                         defaultValue={2} min={0} max={100} step={1}
@@ -185,17 +186,21 @@ class App extends Component {
                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                         onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                 </Input.Group>
-                <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
-                    uMin={this.state.uMin} uMax={this.state.uMax}
-                    vMin={this.state.vMin} vMax={this.state.vMax} />
                 <DirectoryTree
                     showLine={false}
                     showIcon={false}
                     onSelect={this.onSelect}
                     treeData={treeData}
                     height={250}
-                />
-            </div>
+                    />
+                </Col>
+                <Col flex="auto">
+                <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
+                    uMin={this.state.uMin} uMax={this.state.uMax}
+                    vMin={this.state.vMin} vMax={this.state.vMax}
+                    THETA={this.state.THETA} PHI={this.state.PHI} />
+                </Col>
+            </Row>
         );
     }
 }
