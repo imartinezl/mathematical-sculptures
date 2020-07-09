@@ -1,3 +1,4 @@
+import 'antd/dist/antd.css';
 import './style.css';
 
 import React from "react";
