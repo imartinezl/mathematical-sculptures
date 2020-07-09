@@ -392,7 +392,8 @@ class Canvas extends Component {
     mouseWheel = (e) => {
         // console.log("mousewheel", e)
         this.zoom = true
-        this.dZ = e.deltaY * 0.0075 // > 0 ? 1 : -1;
+        // this.dZ = e.deltaY * 0.0075 // > 0 ? 1 : -1;
+        this.dZ = Math.sign(e.deltaY)*0.4
         this.PZ -= this.dZ
         this.PZ = Math.max(-45, Math.min(0, this.PZ));
         e.preventDefault();
