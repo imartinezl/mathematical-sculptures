@@ -1,8 +1,8 @@
 .rc-color-picker-trigger {
-    border: 1px dashed #FFF;
+    border: 2px solid #000;
     padding: 2px;
     border-radius: 50%;
     width: 30px;
     height: 30px;
-    box-shadow: 0px 0px 3px 5px #fff inset
+    box-shadow: 0px 0px 0px 2px #fff;
 }
