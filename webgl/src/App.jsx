@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import Canvas from "./Canvas.jsx";
 import Formula from 'fparser';
 
-import { Input, Tree, InputNumber, Form, Row, Col } from 'antd';
-const { DirectoryTree } = Tree;  
-import 'antd/dist/antd.css';
+import { Card, Input, Tree, InputNumber, Form, Divider, Space } from 'antd';
+const { DirectoryTree } = Tree;
 
 import treeData from './TreeData.jsx'
 
@@ -16,7 +15,7 @@ class App extends Component {
         this.state = {
             FX: 'cos(u)',
             FY: 'sin(u)',
-            FZ: '0',
+            FZ: 'v',
             validFX: true,
             validFY: true,
             validFZ: true,
@@ -141,66 +140,67 @@ class App extends Component {
     render() {
 
         return (
-            <Row>
-                <Col flex="250px">
+            <div>
+                <Card title="Morphing" 
+                style={{ position:"absolute", zIndex: 1, width: 300, left:"4%", top:"4%" }}>
+                
+                    <Space direction="vertical" size="small">
 
-                <h2> Hello, World! </h2>
-                <Form ref={this.formRef} layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
-                initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: '0'}}
-                >
-                    <Form.Item name={'FX'} validateStatus={this.state.validFX ? "success" : "warning"}
-                        hasFeedback help={this.state.validFX ? null : "Should be a valid formula"}>
-                        <Input placeholder="formula for x" addonBefore="x =" onChange={this.handleFX} />
-                    </Form.Item>
-                    <Form.Item name={'FY'} validateStatus={this.state.validFY ? "success" : "warning"}
-                        hasFeedback help={this.state.validFY ? null : "Should be a valid formula"}>
-                        <Input placeholder="formula for y" addonBefore="y =" onChange={this.handleFY}/>
-                    </Form.Item>
-                    <Form.Item name={'FZ'} validateStatus={this.state.validFZ ? "success" : "warning"}
-                        hasFeedback help={this.state.validFZ ? null : "Should be a valid formula"}>
-                        <Input placeholder="formula for z" addonBefore="z =" onChange={this.handleFZ}/>
-                    </Form.Item>
-                </Form>
-                <br />
-                <Input.Group compact>
-                    <InputNumber style={{ textAlign: 'center', width: 75 }}
-                        defaultValue={0} min={0} max={100} step={1}
-                        formatter={value => `${value}π`} parser={value => value.replace('π', '')}
-                        onChange={this.handleUMin} value={this.state.uMin / Math.PI}
+                    <Form ref={this.formRef} layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
+                    initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: '0'}} autoComplete="off"
+                    >
+                        <Form.Item name={'FX'} validateStatus={this.state.validFX ? "success" : "warning"}
+                            hasFeedback help={this.state.validFX ? null : "Should be a valid formula"}>
+                            <Input placeholder="formula for x" addonBefore="x =" onChange={this.handleFX} />
+                        </Form.Item>
+                        <Form.Item name={'FY'} validateStatus={this.state.validFY ? "success" : "warning"}
+                            hasFeedback help={this.state.validFY ? null : "Should be a valid formula"}>
+                            <Input placeholder="formula for y" addonBefore="y =" onChange={this.handleFY}/>
+                        </Form.Item>
+                        <Form.Item name={'FZ'} validateStatus={this.state.validFZ ? "success" : "warning"}
+                            hasFeedback help={this.state.validFZ ? null : "Should be a valid formula"}>
+                            <Input placeholder="formula for z" addonBefore="z =" onChange={this.handleFZ}/>
+                        </Form.Item>
+                    </Form>
+                    <Input.Group compact style={{left: "42px"}}>
+                        <InputNumber style={{ textAlign: 'center', width: 75 }}
+                            defaultValue={0} min={0} max={100} step={1}
+                            formatter={value => `${value}π`} parser={value => value.replace('π', '')}
+                            onChange={this.handleUMin} value={this.state.uMin / Math.PI}
+                            />
+                        <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
+                        <InputNumber style={{ textAlign: 'center', width: 75 }}
+                            defaultValue={2} min={0} max={100} step={1}
+                            formatter={value => `${value}π`} parser={value => value.replace('π', '')}
+                            onChange={this.handleUMax} value={this.state.uMax / Math.PI} />
+                    </Input.Group>
+                    <Input.Group compact style={{left: "42px"}}>
+                        <InputNumber style={{ textAlign: 'center', width: 75 }}
+                            defaultValue={0} min={0} max={100} step={1}
+                            formatter={value => `${value}π`} parser={value => value.replace('π', '')}
+                            onChange={this.handleVMin} value={this.state.vMin / Math.PI} />
+                        <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="< v <" />
+                        <InputNumber style={{ textAlign: 'center', width: 75 }}
+                            defaultValue={2} min={0} max={100} step={1}
+                            formatter={value => `${value}π`} parser={value => value.replace('π', '')}
+                            onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
+                    </Input.Group>
+                    <Divider orientation="left">Examples</Divider>
+                    <DirectoryTree
+                        showLine={false}
+                        showIcon={false}
+                        onSelect={this.onSelect}
+                        treeData={treeData}
+                        height={400}
                         />
-                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
-                    <InputNumber style={{ textAlign: 'center', width: 75 }}
-                        defaultValue={2} min={0} max={100} step={1}
-                        formatter={value => `${value}π`} parser={value => value.replace('π', '')}
-                        onChange={this.handleUMax} value={this.state.uMax / Math.PI} />
-                </Input.Group>
-                <br />
-                <Input.Group compact>
-                    <InputNumber style={{ textAlign: 'center', width: 75 }}
-                        defaultValue={0} min={0} max={100} step={1}
-                        formatter={value => `${value}π`} parser={value => value.replace('π', '')}
-                        onChange={this.handleVMin} value={this.state.vMin / Math.PI} />
-                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="< v <" />
-                    <InputNumber style={{ textAlign: 'center', width: 75 }}
-                        defaultValue={2} min={0} max={100} step={1}
-                        formatter={value => `${value}π`} parser={value => value.replace('π', '')}
-                        onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
-                </Input.Group>
-                <DirectoryTree
-                    showLine={false}
-                    showIcon={false}
-                    onSelect={this.onSelect}
-                    treeData={treeData}
-                    height={250}
-                    />
-                </Col>
-                <Col flex="auto">
+                    </Space>
+                </Card>
                 <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
                     uMin={this.state.uMin} uMax={this.state.uMax}
                     vMin={this.state.vMin} vMax={this.state.vMax}
                     THETA={this.state.THETA} PHI={this.state.PHI} />
-                </Col>
-            </Row>
+                
+            </div>
         );
     }
 }
