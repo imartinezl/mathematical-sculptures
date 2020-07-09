@@ -6,6 +6,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
 import './colorPicker.css';
+import 'antd/dist/antd.css';
 
 class Canvas extends Component {
     constructor(props) {
@@ -18,7 +19,7 @@ class Canvas extends Component {
         this.shaderProgram = null;
         this.uniforms = null;
         
-        this.AMORTIZATION = 0.80;
+        this.AMORTIZATION = 0.8;
         this.control = false;
         this.drag = false;
         this.translate = false;
@@ -36,16 +37,19 @@ class Canvas extends Component {
         this.tX = 0;
         this.tY = 0;
         
-        this.PX = 0;
-        this.PY = 0;
-        this.PZ = -7;
-        this.THETA = 0;
-        this.PHI = 0;
+        this.PX = 2;
+        this.PY = 1;
+        this.PZ = -8;
+        this.THETA = -Math.PI / 5;
+        this.PHI = Math.PI / 6;
 
-        this.colorBack= '#FF0000';
+        this.colorBack= '#f1f1f1';
         this.colorShape= '#000000';
+        this.alphaShape= 0.4
 
         this.showAxis = true;
+        this.colorBackground = false;
+        if(this.colorBackground) document.body.style.background = this.colorBack;
         window.addEventListener('resize', this.resize, false);
     }
     componentDidMount() {
@@ -73,8 +77,6 @@ class Canvas extends Component {
     }
 
     resize = () => {
-        //this.init()
-        //this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
         let ratio = this.canvas.width / this.canvas.height;
         let canvas_height = window.innerHeight;
         let canvas_width = canvas_height * ratio;
@@ -82,17 +84,26 @@ class Canvas extends Component {
             canvas_width = window.innerWidth;
             canvas_height = canvas_width/ratio;
         }
+        
+        // let canvas_width = window.innerWidth;
+        // let canvas_height = canvas_width / ratio;
+        // if(canvas_height > window.innerHeight){
+        //     canvas_height = window.innerHeight;
+        //     canvas_width = canvas_height*ratio;
+        // }
 
         this.canvas.style.width = canvas_width + 'px';
         this.canvas.style.height = canvas_height + 'px';
+        
+        // this.canvas.width = window.innerWidth;
+        // this.canvas.height = window.innerHeight;
+        // ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
+        // this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
     }
 
     initCanvas = () => {
-        let canvas = document.getElementById('mycanvas');
-        // canvas.width  = window.innerWidth;
-        // canvas.height = window.innerHeight;
-        let rect = canvas.parentNode.parentNode.getBoundingClientRect();
-        canvas.width = window.innerWidth - 251;
+        let canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         let gl = canvas.getContext('experimental-webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true });
         return {canvas, gl}
@@ -166,18 +177,29 @@ class Canvas extends Component {
 
     initShaders = (gl) => {
         let vertCode =
-            `attribute vec3 position;
+            `
+            precision mediump int;
+            precision mediump float;
+            
+            attribute vec3 position;
             uniform mat4 Pmatrix;
             uniform mat4 Vmatrix;
             uniform mat4 Mmatrix;
+            
             void main(void) { 
                 gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
             }`;
 
-        let fragCode =
-            `precision mediump float;
+        let [r, g, b] = this.hexToRgb(this.colorShape)
+        let a = this.alphaShape
+        let fragCode = 
+            `
+            precision mediump float;
+            precision mediump int;
+
+            uniform vec4 color;
             void main(void) {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 0.3);
+                gl_FragColor = color;
             }`;
 
         let vertShader = gl.createShader(gl.VERTEX_SHADER);
@@ -200,10 +222,12 @@ class Canvas extends Component {
 
     shadersUniforms = (gl, shaderProgram, uniforms) => {
 
+        let _color = gl.getUniformLocation(shaderProgram, "color");
         let _Pmatrix = gl.getUniformLocation(shaderProgram, "Pmatrix");
         let _Vmatrix = gl.getUniformLocation(shaderProgram, "Vmatrix");
         let _Mmatrix = gl.getUniformLocation(shaderProgram, "Mmatrix");
 
+        gl.uniform4fv(_color, uniforms.color);
         gl.uniformMatrix4fv(_Pmatrix, false, uniforms.projMatrix);
         gl.uniformMatrix4fv(_Vmatrix, false, uniforms.viewMatrix);
         gl.uniformMatrix4fv(_Mmatrix, false, uniforms.moMatrix);
@@ -308,7 +332,7 @@ class Canvas extends Component {
     }
 
     keyDown = (e) => {
-        console.log("keyDown", e, e.key)
+        // console.log("keyDown", e)
         if(e.keyCode == 17){
             this.control = true;
         }
@@ -340,6 +364,7 @@ class Canvas extends Component {
         // console.log("mouseUp")
         this.drag = false;
         this.translate = false;
+        // console.log(this.THETA, this.PHI, this.PX, this.PY, this.PZ)
     }
 
     mouseMove = (e, canvas) => {
@@ -427,7 +452,6 @@ class Canvas extends Component {
             }
         }
 
-        //this.viewMatrix[14] = this.viewMatrix[14] - 0.005
         //console.log(canvas, gl, shaderProgram, uniforms, attributes)
         uniforms.moMatrix = this.getI4();
 
@@ -437,33 +461,20 @@ class Canvas extends Component {
         this.rotateY(uniforms.moMatrix, this.THETA);
         this.rotateX(uniforms.moMatrix, this.PHI);
         
-        // if(this.zoom){
-        //     let oldZoom = uniforms.viewMatrix[14]
-        //     let newZoom = oldZoom - this.dZ * 0.0075
-        //     newZoom = Math.max(-30, Math.min(-2, newZoom));
-        //     this.setZ(uniforms.viewMatrix, newZoom)
-        //     this.zoom = false
-        // }else{
-        //     let oldZoom = uniforms.viewMatrix[14]
-        //     let newZoom = oldZoom - this.dZ * 0.0075
-        //     newZoom = Math.max(-30, Math.min(-2, newZoom));
-        //     this.setZ(uniforms.viewMatrix, newZoom)
-        // }
-        // this.translateX(uniforms.viewMatrix, this.tX);
-        // this.translateY(uniforms.viewMatrix, this.tY);
-
+        let [r, g, b] = this.hexToRgb(this.colorShape)
+        let a = this.alphaShape
+        uniforms.color = new Float32Array([r, g, b, a]);
 
         // enable alpha blending
         gl.enable(gl.DEPTH_TEST);
-        gl.blendFunc(gl.GL_ONE, gl.ONE_MINUS_SRC_COLOR);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
         gl.disable(gl.DEPTH_TEST);
 
         // clear canvas
         //gl.clearColor(0.1, 0.1, 0.1, 1.0);
-        let [r, g, b] = this.hexToRgb(this.colorBack)
+        [r, g, b] = this.hexToRgb(this.colorBack)
         gl.clearColor(r, g, b, 1.0);
-
         gl.clearDepth(1.0);
         gl.viewport(0.0, 0.0, canvas.width, canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -483,16 +494,17 @@ class Canvas extends Component {
         .map(x => parseInt(x, 16)/255)
     
     handleColorShape = (color) => {
-        this.colorShape = color.color
-        this.canvas.style.background = color.color
+        this.colorShape = color.color;
+        this.alphaShape = color.alpha/100;
     };
     
     handleColorBack = (color) => {
         this.colorBack = color.color;
+        // this.canvas.background = color.color;
+        if(this.colorBackground) document.body.style.background = color.color;
     };
 
     lookXZ = () => {
-        console.log(this.THETA)
         this.THETA = 0;
         this.PHI = Math.PI / 2;
     }
@@ -506,9 +518,34 @@ class Canvas extends Component {
     }
 
     download = (canvas, filename) => {
+        // add text
+        let canvas2D = document.getElementById("text")
+        let ctx2D = canvas2D.getContext("2d")
+        canvas2D.width = canvas.width
+        canvas2D.height = canvas.height
+        let ctxWeb = canvas.getContext("experimental-webgl")
+
+        ctx2D.fillStyle = "#ffffff"
+        ctx2D.fillRect(0, 0, canvas.width, canvas.height)
+        ctx2D.drawImage(canvas, 0, 0)
+        let px = 30
+        let py = 120
+        let sep = 20
+        let textColor = "#" +('0xffffff' ^ '0x' + this.colorBack.slice(1)).toString(16)
+        ctx2D.font = "14px Segoe UI, Roboto, sans-serif"
+        ctx2D.fillStyle = textColor;
+        ctx2D.textAlign = "right"
+        ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
+        ctx2D.textAlign = "left"
+        ctx2D.fillText("x = "+this.props.FX, px, canvas2D.height-py+sep*0);
+        ctx2D.fillText("y = "+this.props.FY, px, canvas2D.height-py+sep*1);
+        ctx2D.fillText("z = "+this.props.FZ, px, canvas2D.height-py+sep*2);
+        ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
+        ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
+
         let lnk = document.createElement('a'), e;
         lnk.download = filename;
-        lnk.href = canvas.toDataURL("image/jpeg", 0.95);
+        lnk.href = canvas2D.toDataURL("image/png");
         if (document.createEvent) {
             e = document.createEvent("MouseEvents");
             e.initMouseEvent("click", true, true, window,
@@ -518,21 +555,20 @@ class Canvas extends Component {
         } else if (lnk.fireEvent) {
             lnk.fireEvent("onclick");
         }
+        ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
     }
 
     render() {
         return (
             <div>
-                <canvas id="mycanvas" //width="800" height="800"
-                    style={{ background: this.colorShape, cursor: "crosshair"}}>
-                </canvas>
-                <br/>
-                <Space style={{position: "absolute", right:"2%", bottom:"2%"}}>
-                <Button type="dashed" shape="circle" onClick={this.lookXY} style={{}}>XY</Button>
-                <Button type="dashed" shape="circle" onClick={this.lookXZ}>XZ</Button>
-                <Button type="dashed" shape="circle" onClick={this.lookYZ}>YZ</Button>
-                <Button type="dashed" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.jpg')} />
-                <ColorPicker color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/>
+                <canvas id="canvas" style={{background: 'white', cursor: "crosshair"}}></canvas>
+                <canvas id="text"></canvas>
+                <Space style={{position: "absolute", left:"6%", bottom:"4%"}}>
+                <Button type="default" shape="circle" onClick={this.lookXY} style={{}}>XY</Button>
+                <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
+                <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
+                <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
+                <ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/>
                 <ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/>
                 </Space>
             </div>
