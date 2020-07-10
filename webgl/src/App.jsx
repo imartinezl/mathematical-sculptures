@@ -147,7 +147,7 @@ class App extends Component {
                     <Space direction="vertical" size="small">
 
                     <Form ref={this.formRef} layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
-                    initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: '0'}} autoComplete="off"
+                    initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: 'v'}} autoComplete="off"
                     >
                         <Form.Item name={'FX'} validateStatus={this.state.validFX ? "success" : "warning"}
                             hasFeedback help={this.state.validFX ? null : "Should be a valid formula"}>
@@ -164,24 +164,24 @@ class App extends Component {
                     </Form>
                     <Input.Group compact style={{left: "42px"}}>
                         <InputNumber style={{ textAlign: 'center', width: 75 }}
-                            defaultValue={0} min={0} max={100} step={1}
+                            defaultValue={0} min={-100} max={100} step={1}
                             formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                             onChange={this.handleUMin} value={this.state.uMin / Math.PI}
                             />
                         <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
                         <InputNumber style={{ textAlign: 'center', width: 75 }}
-                            defaultValue={2} min={0} max={100} step={1}
+                            defaultValue={2} min={-100} max={100} step={1}
                             formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                             onChange={this.handleUMax} value={this.state.uMax / Math.PI} />
                     </Input.Group>
                     <Input.Group compact style={{left: "42px"}}>
                         <InputNumber style={{ textAlign: 'center', width: 75 }}
-                            defaultValue={0} min={0} max={100} step={1}
+                            defaultValue={0} min={-100} max={100} step={1}
                             formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                             onChange={this.handleVMin} value={this.state.vMin / Math.PI} />
                         <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="< v <" />
                         <InputNumber style={{ textAlign: 'center', width: 75 }}
-                            defaultValue={2} min={0} max={100} step={1}
+                            defaultValue={2} min={-100} max={100} step={1}
                             formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                             onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                     </Input.Group>
