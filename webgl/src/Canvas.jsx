@@ -493,7 +493,7 @@ class Canvas extends Component {
         ,(m, r, g, b) => '#' + r + r + g + g + b + b)
         .substring(1).match(/.{2}/g)
         .map(x => parseInt(x, 16)/255)
-    
+
     handleColorShape = (color) => {
         this.colorShape = color.color;
         this.alphaShape = color.alpha/100;
@@ -532,7 +532,8 @@ class Canvas extends Component {
         let px = 30
         let py = 120
         let sep = 20
-        let textColor = "#" +('0xffffff' ^ '0x' + this.colorBack.slice(1)).toString(16)
+        let [r,g,b] = this.hexToRgb(this.colorBack)
+        let textColor =  255*(r*0.299 + g*0.587 + b*0.114) > 186 ? "#000000" : "#ffffff"
         ctx2D.font = "14px Segoe UI, Roboto, sans-serif"
         ctx2D.fillStyle = textColor;
         ctx2D.textAlign = "right"
