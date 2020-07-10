@@ -1,7 +1,7 @@
 import Formula from 'fparser';
 import React, { Component } from "react";
 import { Button, Space } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, BorderInnerOutlined, LayoutOutlined, CompressOutlined, CompassOutlined } from '@ant-design/icons';
 
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
@@ -47,7 +47,7 @@ class Canvas extends Component {
         this.colorShape= '#000000';
         this.alphaShape= 0.4
 
-        this.showAxis = true;
+        this.showAxis = false;
         this.colorBackground = false;
         if(this.colorBackground) document.body.style.background = this.colorBack;
         window.addEventListener('resize', this.resize, false);
@@ -134,13 +134,11 @@ class Canvas extends Component {
         let z_formula = new Formula(FZ);
         let scl = 1;
         let vertices = [];
-        if(this.showAxis){
-            vertices = [
-                0,0,0 , 1,0,0,
-                0,0,0 , 0,1,0,
-                0,0,0 , 0,0,1
-            ];  
-        }
+        vertices = [
+            0,0,0 , 1,0,0,
+            0,0,0 , 0,1,0,
+            0,0,0 , 0,0,1
+        ];  
         let xMin = x_formula.evaluate({u: uMin, v:vMin})
         let xMax = x_formula.evaluate({u: uMax, v:vMax})
         let xMean = (xMin + xMax)/2
@@ -418,12 +416,10 @@ class Canvas extends Component {
     }
 
     drawLines = (gl, uPoints, vPoints) => {
-        let start = 0
+        let start = 6
         if(this.showAxis){
-            start = 6;
+            // start = 6;
             gl.drawArrays(gl.LINES, 0, 6);
-            // gl.drawArrays(gl.LINES, 2, 2);
-            // gl.drawArrays(gl.LINES, 4, 2);
         }
         for (let i = 0; i <= vPoints; i++) {
             gl.drawArrays(gl.LINE_STRIP, start+(uPoints + 1) * i, uPoints+1); //LINE_STRIP vs LINE_LOOP
@@ -505,17 +501,36 @@ class Canvas extends Component {
         if(this.colorBackground) document.body.style.background = color.color;
     };
 
-    lookXZ = () => {
+    resetView = (e) => {
+        this.PX = 2;
+        this.PY = 1;
+        this.PZ = -8;
+        this.THETA = -Math.PI / 5;
+        this.PHI = Math.PI / 6;
+    }
+    lookXY = (e) => {
+        this.PX = 0;
+        this.PY = 0;
+        this.THETA = 0;
+        this.PHI = 0;
+        e.preventDefault()
+    }
+    lookXZ = (e) => {
+        this.PX = 0;
+        this.PY = 0;
         this.THETA = 0;
         this.PHI = Math.PI / 2;
     }
-    lookXY = () => {
-        this.THETA = 0;
-        this.PHI = 0;
-    }
-    lookYZ = () => {
+    lookYZ = (e) => {
+        this.PX = 0;
+        this.PY = 0;
         this.THETA = Math.PI / 2;
         this.PHI = 0;
+    }
+
+
+    toggleAxis = () => {
+        this.showAxis = !this.showAxis
     }
 
     download = (canvas, filename) => {
@@ -565,10 +580,12 @@ class Canvas extends Component {
             <div>
                 <canvas id="canvas" style={{background: 'white', cursor: "crosshair"}}></canvas>
                 <canvas id="text"></canvas>
-                <Space style={{position: "absolute", left:"6%", bottom:"4%"}}>
-                <Button type="default" shape="circle" onClick={this.lookXY} style={{}}>XY</Button>
+                <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
+                <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetView}/>
+                <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
                 <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
                 <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
+                <Button type="default" shape="circle" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
                 <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
                 <ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/>
                 <ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/>
