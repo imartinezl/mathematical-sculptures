@@ -4,7 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: './src/index.js',
-    mode: 'development',
+    mode: 'production',
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
@@ -16,7 +16,7 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
         new HtmlWebpackPlugin({
-            title: 'Development',
+            title: 'Morphing',
             template: 'src/index.html'
         }),
     ],
