@@ -20,7 +20,6 @@ class Canvas extends Component {
         this.uniforms = null;
         
         this.AMORTIZATION = 0.8;
-        this.control = false;
         this.drag = false;
         this.translate = false;
         this.zoom = false;
@@ -331,21 +330,17 @@ class Canvas extends Component {
 
     keyDown = (e) => {
         // console.log("keyDown", e)
-        if(e.keyCode == 17){
-            this.control = true;
-        }
         //e.preventDefault();
         return false;
     }
 
     keyUp = (e) => {
         // console.log("keyUp")
-        this.control = false;
     }
 
     mouseDown = (e) => {
-        // console.log("mouseDown")
-        if(this.control){
+        console.log("mouseDown", e)
+        if(e.ctrlKey){
             this.translate = true;
             this.aX = e.pageX;
             this.aY = e.pageY;
@@ -359,15 +354,14 @@ class Canvas extends Component {
     }
 
     mouseUp = (e) => {
-        // console.log("mouseUp")
+        console.log("mouseUp", e)
         this.drag = false;
         this.translate = false;
         // console.log(this.THETA, this.PHI, this.PX, this.PY, this.PZ)
     }
 
     mouseMove = (e, canvas) => {
-        // console.log("mouseMove", e)
-        // console.log(this.control, this.translate, this.drag)
+        console.log("mouseMove", e)
         if (this.translate){
             this.tX = (e.pageX - this.aX) * 2 * Math.PI / canvas.width;
             this.tY = -(e.pageY - this.aY) * 2 * Math.PI / canvas.height;
@@ -397,6 +391,29 @@ class Canvas extends Component {
         e.preventDefault();
     }
 
+    touchStart = (e) => {
+        console.log("touchStart", e)
+        if(this.control){
+            this.translate = true;
+            this.aX = e.pageX;
+            this.aY = e.pageY;
+        }else{
+            this.drag = true;
+            this.pX = e.pageX;
+            this.pY = e.pageY;
+        }
+        e.preventDefault();
+        return false;
+    }
+
+    touchEnd = (e) => {
+        console.log("touchEnd", e)
+    }
+
+    touchMove = (e) => {
+        console.log("touchMove", e)
+    }
+
     mouseEvents = (canvas) => {
         document.addEventListener("keydown", this.keyDown, false);
         document.addEventListener("keyup", this.keyUp, false);
@@ -406,9 +423,9 @@ class Canvas extends Component {
         canvas.addEventListener("mousemove", e => this.mouseMove(e, canvas), false);
         canvas.addEventListener("wheel", this.mouseWheel, false);
 
-        // canvas.addEventListener("touchstart", this.mouseDown, false);
-        // canvas.addEventListener("touchend", this.mouseUp, false);
-        // canvas.addEventListener("touchmove", e => this.mouseMove(e, canvas), false);
+        canvas.addEventListener("touchstart", this.touchStart, false);
+        canvas.addEventListener("touchend", this.touchEnd, false);
+        canvas.addEventListener("touchmove", this.touchMove, false);
     }
 
     drawPoints = (gl, n) => {
