@@ -35,6 +35,9 @@ class Canvas extends Component {
         this.aY = 0;
         this.tX = 0;
         this.tY = 0;
+
+        this.evCache = [];
+        this.prevDiff = -1;
         
         this.PX = 2;
         this.PY = 1;
@@ -66,6 +69,7 @@ class Canvas extends Component {
         let shaderProgram = this.initShaders(gl)
         let uniforms = this.initMatrix(canvas)
         this.mouseEvents(canvas);
+        this.touchEvents(canvas);
         return {canvas, gl, shaderProgram, uniforms}
     }
     run = (canvas, gl, shaderProgram, uniforms) => {
@@ -328,74 +332,21 @@ class Canvas extends Component {
         m[14]+=t;
     }
 
-    keyDown = (e) => {
-        // console.log("keyDown", e)
-        //e.preventDefault();
+    keyDown = (ev) => {
+        // console.log("keyDown", ev)
+        //ev.preventDefault();
         return false;
     }
 
-    keyUp = (e) => {
+    keyUp = (ev) => {
         // console.log("keyUp")
     }
 
-    mouseDown = (e) => {
-        // console.log("mouseDown", e)
-        if(e.ctrlKey){
-            this.translate = true;
-            this.aX = e.pageX;
-            this.aY = e.pageY;
-        }else{
-            this.drag = true;
-            this.pX = e.pageX;
-            this.pY = e.pageY;
-        }
-        e.preventDefault();
-        return false;
-    }
-
-    mouseUp = (e) => {
-        // console.log("mouseUp", e)
-        this.drag = false;
-        this.translate = false;
-        // console.log(this.THETA, this.PHI, this.PX, this.PY, this.PZ)
-    }
-
-    mouseMove = (e, canvas) => {
-        // console.log("mouseMove", e)
-        if (this.translate){
-            this.tX = (e.pageX - this.aX) * 2 * Math.PI / canvas.width;
-            this.tY = -(e.pageY - this.aY) * 2 * Math.PI / canvas.height;
-            this.PX += this.tX;
-            this.PY += this.tY;
-            this.aX = e.pageX;
-            this.aY = e.pageY;
-        }else if (this.drag){
-            this.dX = (e.pageX - this.pX) * 2 * Math.PI / canvas.width;
-            this.dY = (e.pageY - this.pY) * 2 * Math.PI / canvas.height;
-            this.THETA += this.dX;
-            this.PHI += this.dY;
-            this.pX = e.pageX;
-            this.pY = e.pageY;
-        }
-        //if (!this.drag || !this.translate) return false;
-        e.preventDefault();
-    }
-
-    mouseWheel = (e) => {
-        // console.log("mousewheel", e)
-        this.zoom = true
-        // this.dZ = e.deltaY * 0.0075 // > 0 ? 1 : -1;
-        this.dZ = Math.sign(e.deltaY)*0.4
-        this.PZ -= this.dZ
-        this.PZ = Math.max(-45, Math.min(0, this.PZ));
-        e.preventDefault();
-    }
-
-    touchStart = (e) => {
-        console.log("touchStart", e)
-        let pageX = e.touches[0].pageX;
-        let pageY = e.touches[0].pageY;
-        if(e.ctrlKey){
+    mouseDown = (ev) => {
+        // console.log("mouseDown", ev)
+        let pageX = ev.pageX;
+        let pageY = ev.pageY;
+        if(ev.ctrlKey){
             this.translate = true;
             this.aX = pageX;
             this.aY = pageY;
@@ -404,20 +355,21 @@ class Canvas extends Component {
             this.pX = pageX;
             this.pY = pageY;
         }
-        e.preventDefault();
+        ev.preventDefault();
         return false;
     }
 
-    touchEnd = (e) => {
-        console.log("touchEnd", e)
+    mouseUp = (ev) => {
+        // console.log("mouseUp", ev)
         this.drag = false;
         this.translate = false;
+        // console.log(this.THETA, this.PHI, this.PX, this.PY, this.PZ)
     }
 
-    touchMove = (e, canvas) => {
-        console.log("touchMove", e)
-        let pageX = e.touches[0].pageX;
-        let pageY = e.touches[0].pageY;
+    mouseMove = (ev, canvas) => {
+        // console.log("mouseMove", ev)
+        let pageX = ev.pageX;
+        let pageY = ev.pageY;
         if (this.translate){
             this.tX = (pageX - this.aX) * 2 * Math.PI / canvas.width;
             this.tY = -(pageY - this.aY) * 2 * Math.PI / canvas.height;
@@ -433,21 +385,135 @@ class Canvas extends Component {
             this.pX = pageX;
             this.pY = pageY;
         }
-        e.preventDefault();
+        //if (!this.drag || !this.translate) return false;
+        ev.preventDefault();
     }
 
+    mouseWheel = (ev) => {
+        // console.log("mousewheel", ev)
+        this.zoom = true
+        // this.dZ = ev.deltaY * 0.0075 // > 0 ? 1 : -1;
+        this.dZ = Math.sign(ev.deltaY)*0.4
+        this.PZ -= this.dZ
+        this.PZ = Math.max(-45, Math.min(0, this.PZ));
+        ev.preventDefault();
+    }
+
+    
     mouseEvents = (canvas) => {
-        document.addEventListener("keydown", this.keyDown, false);
-        document.addEventListener("keyup", this.keyUp, false);
+        // document.addEventListener("keydown", this.keyDown, false);
+        // document.addEventListener("keyup", this.keyUp, false);
         canvas.addEventListener("mousedown", this.mouseDown, false);
         canvas.addEventListener("mouseup", this.mouseUp, false);
         canvas.addEventListener("mouseout", this.mouseUp, false);
-        canvas.addEventListener("mousemove", e => this.mouseMove(e, canvas), false);
+        canvas.addEventListener("mousemove", ev => this.mouseMove(ev, canvas), false);
         canvas.addEventListener("wheel", this.mouseWheel, false);
+    }
+    
+    touchStart = (ev) => {
+        console.log("touchStart", ev)
+        let pageX = ev.touches[0].pageX;
+        let pageY = ev.touches[0].pageY;
+        if(ev.ctrlKey){
+            this.translate = true;
+            this.aX = pageX;
+            this.aY = pageY;
+        }else{
+            this.drag = true;
+            this.pX = pageX;
+            this.pY = pageY;
+        }
+        ev.preventDefault();
+        return false;
+    }
 
+    touchEnd = (ev) => {
+        console.log("touchEnd", ev)
+        this.drag = false;
+        this.translate = false;
+    }
+
+    touchMove = (ev, canvas) => {
+        //console.log("touchMove", ev)
+        let pageX = ev.touches[0].pageX;
+        let pageY = ev.touches[0].pageY;
+        if (this.translate){
+            this.tX = (pageX - this.aX) * 2 * Math.PI / canvas.width;
+            this.tY = -(pageY - this.aY) * 2 * Math.PI / canvas.height;
+            this.PX += this.tX;
+            this.PY += this.tY;
+            this.aX = pageX;
+            this.aY = pageY;
+        }else if (this.drag){
+            this.dX = (pageX - this.pX) * 2 * Math.PI / canvas.width;
+            this.dY = (pageY - this.pY) * 2 * Math.PI / canvas.height;
+            this.THETA += this.dX;
+            this.PHI += this.dY;
+            this.pX = pageX;
+            this.pY = pageY;
+        }
+        ev.preventDefault();
+    }
+
+    pointerDown = (ev) => {
+        console.log("pointerDown", ev)
+        this.evCache.push(ev)
+    }
+
+    pointerMove = (ev) => {
+        console.log("pointerMove", ev)
+        ev.target.style.border = "dashed"
+        for (let i = 0; i < this.evCache.length; i++) {
+            if(ev.pointerId == this.evCache[i].pointerId){
+                this.evCache[i] = ev;
+                break;
+            }
+        }
+        if (this.evCache.length == 2){
+            let curDiff = Math.abs(this.evCache[0].clientX - this.evCache[1].clientX);
+            if(this.prevDiff > 0){
+                if(curDiff < this.prevDiff){
+                // Pinch moving OUT
+                console.log("pinch out")
+                }
+                if(curDiff < this.prevDiff){
+                // Pinch moving IN
+                console.log("pinch in")
+                }
+            }
+            this.prevDiff = curDiff;
+        }
+    }
+
+    pointerUp = (ev) => {
+        console.log("pointerUp", ev)
+        this.removeEvent(ev)
+        ev.target.style.border = null
+        if(this.evCache.length < 2){
+            this.prevDiff = -1;
+        }
+    }
+    
+    removeEvent = (ev) => {
+        for (let i = 0; i < this.evCache.length; i++) {
+            if(this.evCache[i].pointerId == ev.pointerId){
+                this.evCache.splice(i, 1);
+                break
+            }
+        }
+    }
+
+    touchEvents = (canvas) => {
         canvas.addEventListener("touchstart", this.touchStart, false);
         canvas.addEventListener("touchend", this.touchEnd, false);
-        canvas.addEventListener("touchmove", e => this.touchMove(e, canvas), false);
+        canvas.addEventListener("touchmove", ev => this.touchMove(ev, canvas), false);
+        canvas.addEventListener("pointerdown", this.pointerDown, false)
+        canvas.addEventListener("pointermove", this.pointerMove, false)
+        canvas.addEventListener("pointerup", this.pointerUp, false)
+        canvas.addEventListener("pointercancel", this.pointerUp, false)
+        canvas.addEventListener("pointerout", this.pointerUp, false)
+        canvas.addEventListener("pointerleave", this.pointerUp, false)
+
     }
 
     drawPoints = (gl, n) => {
@@ -540,27 +606,27 @@ class Canvas extends Component {
         if(this.colorBackground) document.body.style.background = color.color;
     };
 
-    resetLook = (e) => {
+    resetLook = (ev) => {
         this.PX = 2;
         this.PY = 1;
         this.PZ = -8;
         this.THETA = -Math.PI / 5;
         this.PHI = Math.PI / 6;
     }
-    lookXY = (e) => {
+    lookXY = (ev) => {
         this.PX = 0;
         this.PY = 0;
         this.THETA = 0;
         this.PHI = 0;
-        e.preventDefault()
+        ev.preventDefault()
     }
-    lookXZ = (e) => {
+    lookXZ = (ev) => {
         this.PX = 0;
         this.PY = 0;
         this.THETA = 0;
         this.PHI = Math.PI / 2;
     }
-    lookYZ = (e) => {
+    lookYZ = (ev) => {
         this.PX = 0;
         this.PY = 0;
         this.THETA = Math.PI / 2;
@@ -599,15 +665,15 @@ class Canvas extends Component {
         ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
         ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
 
-        let lnk = document.createElement('a'), e;
+        let lnk = document.createElement('a'), ev;
         lnk.download = filename;
         lnk.href = canvas2D.toDataURL("image/png");
         if (document.createEvent) {
-            e = document.createEvent("MouseEvents");
-            e.initMouseEvent("click", true, true, window,
+            ev = document.createEvent("MouseEvents");
+            ev.initMouseEvent("click", true, true, window,
                             0, 0, 0, 0, 0, false, false, false,
                             false, 0, null);
-            lnk.dispatchEvent(e);
+            lnk.dispatchEvent(ev);
         } else if (lnk.fireEvent) {
             lnk.fireEvent("onclick");
         }
