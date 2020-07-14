@@ -339,7 +339,7 @@ class Canvas extends Component {
     }
 
     mouseDown = (e) => {
-        console.log("mouseDown", e)
+        // console.log("mouseDown", e)
         if(e.ctrlKey){
             this.translate = true;
             this.aX = e.pageX;
@@ -354,14 +354,14 @@ class Canvas extends Component {
     }
 
     mouseUp = (e) => {
-        console.log("mouseUp", e)
+        // console.log("mouseUp", e)
         this.drag = false;
         this.translate = false;
         // console.log(this.THETA, this.PHI, this.PX, this.PY, this.PZ)
     }
 
     mouseMove = (e, canvas) => {
-        console.log("mouseMove", e)
+        // console.log("mouseMove", e)
         if (this.translate){
             this.tX = (e.pageX - this.aX) * 2 * Math.PI / canvas.width;
             this.tY = -(e.pageY - this.aY) * 2 * Math.PI / canvas.height;
@@ -393,14 +393,16 @@ class Canvas extends Component {
 
     touchStart = (e) => {
         console.log("touchStart", e)
-        if(this.control){
+        let pageX = e.touches[0].pageX;
+        let pageY = e.touches[0].pageY;
+        if(e.ctrlKey){
             this.translate = true;
-            this.aX = e.pageX;
-            this.aY = e.pageY;
+            this.aX = pageX;
+            this.aY = pageY;
         }else{
             this.drag = true;
-            this.pX = e.pageX;
-            this.pY = e.pageY;
+            this.pX = pageX;
+            this.pY = pageY;
         }
         e.preventDefault();
         return false;
@@ -408,10 +410,30 @@ class Canvas extends Component {
 
     touchEnd = (e) => {
         console.log("touchEnd", e)
+        this.drag = false;
+        this.translate = false;
     }
 
-    touchMove = (e) => {
+    touchMove = (e, canvas) => {
         console.log("touchMove", e)
+        let pageX = e.touches[0].pageX;
+        let pageY = e.touches[0].pageY;
+        if (this.translate){
+            this.tX = (pageX - this.aX) * 2 * Math.PI / canvas.width;
+            this.tY = -(pageY - this.aY) * 2 * Math.PI / canvas.height;
+            this.PX += this.tX;
+            this.PY += this.tY;
+            this.aX = pageX;
+            this.aY = pageY;
+        }else if (this.drag){
+            this.dX = (pageX - this.pX) * 2 * Math.PI / canvas.width;
+            this.dY = (pageY - this.pY) * 2 * Math.PI / canvas.height;
+            this.THETA += this.dX;
+            this.PHI += this.dY;
+            this.pX = pageX;
+            this.pY = pageY;
+        }
+        e.preventDefault();
     }
 
     mouseEvents = (canvas) => {
@@ -425,7 +447,7 @@ class Canvas extends Component {
 
         canvas.addEventListener("touchstart", this.touchStart, false);
         canvas.addEventListener("touchend", this.touchEnd, false);
-        canvas.addEventListener("touchmove", this.touchMove, false);
+        canvas.addEventListener("touchmove", e => this.touchMove(e, canvas), false);
     }
 
     drawPoints = (gl, n) => {
@@ -518,7 +540,7 @@ class Canvas extends Component {
         if(this.colorBackground) document.body.style.background = color.color;
     };
 
-    resetView = (e) => {
+    resetLook = (e) => {
         this.PX = 2;
         this.PY = 1;
         this.PZ = -8;
@@ -598,7 +620,7 @@ class Canvas extends Component {
                 <canvas id="canvas" style={{background: 'white', cursor: "crosshair"}}></canvas>
                 <canvas id="text"></canvas>
                 <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
-                <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetView}/>
+                <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetLook}/>
                 <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
                 <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
                 <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
