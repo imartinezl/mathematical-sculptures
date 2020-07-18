@@ -462,7 +462,7 @@ class Canvas extends Component {
 
     pointerMove = (ev) => {
         console.log("pointerMove", ev)
-        ev.target.style.border = "dashed"
+        // ev.target.style.border = "dashed"
         for (let i = 0; i < this.evCache.length; i++) {
             if(ev.pointerId == this.evCache[i].pointerId){
                 this.evCache[i] = ev;
@@ -488,7 +488,7 @@ class Canvas extends Component {
     pointerUp = (ev) => {
         console.log("pointerUp", ev)
         this.removeEvent(ev)
-        ev.target.style.border = null
+        // ev.target.style.border = null
         if(this.evCache.length < 2){
             this.prevDiff = -1;
         }
