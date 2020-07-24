@@ -1,12 +1,13 @@
 import Formula from 'fparser';
 import React, { Component } from "react";
-import { Button, Space } from 'antd';
-import { DownloadOutlined, BorderInnerOutlined, LayoutOutlined, CompressOutlined, CompassOutlined } from '@ant-design/icons';
+import { Button, Space, Tooltip } from 'antd';
+import { DownloadOutlined, BorderInnerOutlined, CompassOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
 import './colorPicker.css';
 import 'antd/dist/antd.css';
+import './antDesign.css';
 
 class Canvas extends Component {
     constructor(props) {
@@ -69,7 +70,7 @@ class Canvas extends Component {
         let shaderProgram = this.initShaders(gl)
         let uniforms = this.initMatrix(canvas)
         this.mouseEvents(canvas);
-        this.touchEvents(canvas);
+        //this.touchEvents(canvas);
         return {canvas, gl, shaderProgram, uniforms}
     }
     run = (canvas, gl, shaderProgram, uniforms) => {
@@ -331,6 +332,10 @@ class Canvas extends Component {
     translateZ = (m, t) => {
         m[14]+=t;
     }
+    applyZoom = () => {
+        this.PZ -= this.dZ
+        this.PZ = Math.max(-45, Math.min(0, this.PZ));
+    }
 
     keyDown = (ev) => {
         // console.log("keyDown", ev)
@@ -394,8 +399,7 @@ class Canvas extends Component {
         this.zoom = true
         // this.dZ = ev.deltaY * 0.0075 // > 0 ? 1 : -1;
         this.dZ = Math.sign(ev.deltaY)*0.4
-        this.PZ -= this.dZ
-        this.PZ = Math.max(-45, Math.min(0, this.PZ));
+        this.applyZoom();
         ev.preventDefault();
     }
 
@@ -456,12 +460,12 @@ class Canvas extends Component {
     }
 
     pointerDown = (ev) => {
-        console.log("pointerDown", ev)
+        //console.log("pointerDown", ev)
         this.evCache.push(ev)
     }
 
     pointerMove = (ev) => {
-        console.log("pointerMove", ev)
+        //console.log("pointerMove", ev)
         // ev.target.style.border = "dashed"
         for (let i = 0; i < this.evCache.length; i++) {
             if(ev.pointerId == this.evCache[i].pointerId){
@@ -486,7 +490,7 @@ class Canvas extends Component {
     }
 
     pointerUp = (ev) => {
-        console.log("pointerUp", ev)
+        //console.log("pointerUp", ev)
         this.removeEvent(ev)
         // ev.target.style.border = null
         if(this.evCache.length < 2){
@@ -547,8 +551,7 @@ class Canvas extends Component {
         }
         if(this.zoom){
             this.dZ *= this.AMORTIZATION;
-            this.PZ -= this.dZ
-            this.PZ = Math.max(-45, Math.min(0, this.PZ));
+            this.applyZoom();
             if(Math.abs(this.dZ) < 0.01){
                 this.zoom = false
             }
@@ -632,6 +635,19 @@ class Canvas extends Component {
         this.THETA = Math.PI / 2;
         this.PHI = 0;
     }
+    zoomPlus = (ev) => {
+        this.zoom = true
+        this.dZ = -0.5
+        this.applyZoom()
+        ev.preventDefault();
+    }
+    zoomMinus = (ev) => {
+        this.zoom = true
+        this.dZ = 0.5
+        this.applyZoom()
+        ev.preventDefault();
+    }
+
 
 
     toggleAxis = () => {
@@ -654,7 +670,11 @@ class Canvas extends Component {
         let sep = 20
         let [r,g,b] = this.hexToRgb(this.colorBack)
         let textColor =  255*(r*0.299 + g*0.587 + b*0.114) > 186 ? "#000000" : "#ffffff"
-        ctx2D.font = "14px Segoe UI, Roboto, sans-serif"
+        let fontSize = "26px"
+        let fontStyle = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
+        let fontText = fontSize + ' ' + fontStyle.split(',').join(', ' + fontSize)
+        // ctx2D.font = fontText
+        ctx2D.font = "20px Roboto"
         ctx2D.fillStyle = textColor;
         ctx2D.textAlign = "right"
         ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
@@ -664,6 +684,7 @@ class Canvas extends Component {
         ctx2D.fillText("z = "+this.props.FZ, px, canvas2D.height-py+sep*2);
         ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
         ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
+        console.log(fontText, ctx2D.font)
 
         let lnk = document.createElement('a'), ev;
         lnk.download = filename;
@@ -686,14 +707,36 @@ class Canvas extends Component {
                 <canvas id="canvas" style={{background: 'white', cursor: "crosshair"}}></canvas>
                 <canvas id="text"></canvas>
                 <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
-                <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetLook}/>
-                <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
-                <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
-                <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
-                <Button type="default" shape="circle" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
-                <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
-                <ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/>
-                <ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/>
+                <Tooltip title="Reset View">
+                    <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetLook}/>
+                </Tooltip>
+                <Tooltip title="Look XY Plane">
+                    <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
+                </Tooltip>
+                <Tooltip title="Look XZ Plane">
+                    <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
+                </Tooltip>
+                <Tooltip title="Look YZ Plane">
+                    <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
+                </Tooltip>
+                <Tooltip title="Show/Hide Axis">
+                    <Button type="default" shape="circle" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
+                </Tooltip>
+                <Tooltip title="Download Image">
+                    <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
+                </Tooltip>
+                <Tooltip title="Zoom In">
+                    <Button type="default" shape="circle" icon={<PlusOutlined />} onClick={this.zoomPlus} />
+                </Tooltip>
+                <Tooltip title="Zoom Out">
+                    <Button type="default" shape="circle" icon={<MinusOutlined />} onClick={this.zoomMinus} />
+                </Tooltip>
+                <Tooltip title="Shape Color">
+                    <span><ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/></span>
+                </Tooltip>
+                <Tooltip title="Background Color">
+                    <span><ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
+                </Tooltip>
                 </Space>
             </div>
         );
