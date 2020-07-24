@@ -5,6 +5,7 @@ import Formula from 'fparser';
 import { Card, Input, Tree, InputNumber, Form, Divider, Space } from 'antd';
 const { DirectoryTree } = Tree;
 
+
 import treeData from './TreeData.jsx'
 
 
@@ -141,8 +142,12 @@ class App extends Component {
 
         return (
             <div>
-                <Card title="Morphing" 
-                style={{ position:"absolute", zIndex: 1, width: 300, left:"4%", top:"4%" }}>
+                <Card 
+                bordered={false} 
+                hoverable 
+                style={{ position:"absolute", zIndex: 1, width: 300, left:"4%", top:"4%"}}
+                title="Morphing"
+                >
                 
                     <Space direction="vertical" size="small">
 
@@ -198,8 +203,8 @@ class App extends Component {
                 <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
                     uMin={this.state.uMin} uMax={this.state.uMax}
                     vMin={this.state.vMin} vMax={this.state.vMax}
-                    THETA={this.state.THETA} PHI={this.state.PHI} />
-                
+                    THETA={this.state.THETA} PHI={this.state.PHI}
+                />
             </div>
         );
     }
