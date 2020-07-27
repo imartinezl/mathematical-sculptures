@@ -29,7 +29,7 @@ class App extends Component {
         
     }
     componentDidUpdate() {
-        console.log("component update")
+        console.log("app update")
         console.log(this.state)
     }
     validateFormula = (F) => {
@@ -43,7 +43,7 @@ class App extends Component {
                 }
             });
             let a = formulaTMP.evaluate({ u: 0, v: 0 });
-            console.log(a)
+            // console.log(a)
             return true
         } catch (error) {
             console.error(error)
@@ -124,7 +124,7 @@ class App extends Component {
 
     onSelect = (selectedKeys, info) => {
         const { FX, FY, FZ, uMin, uMax, vMin, vMax } = info.node
-        console.log('selected', selectedKeys, info);
+        // console.log('selected', selectedKeys, info);
         this.setFX(FX)
         this.setFY(FY)
         this.setFZ(FZ)
@@ -196,7 +196,7 @@ class App extends Component {
                         showIcon={false}
                         onSelect={this.onSelect}
                         treeData={treeData}
-                        height={400}
+                        height={300}
                         />
                     </Space>
                 </Card>
