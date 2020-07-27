@@ -145,12 +145,11 @@ class App extends Component {
                 <Card 
                 bordered={false} 
                 hoverable 
-                style={{ position:"absolute", zIndex: 10, width: 320, left:"4%", top:"4%"}}
+                style={{ position:"absolute", zIndex: 10, width: 334, left:"4%", top:"4%"}}
                 // title="Morphing"
                 >
                 
-                    {/* <Space direction="vertical" size="small" align="baseline"> */}
-                    <Divider orientation="left">Morphing</Divider>
+                    <Divider orientation="left" style={{marginBottom: "30px"}}>Parametric Equations</Divider>
                     <Form ref={this.formRef} layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
                     initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: 'v'}} autoComplete="off"
                     >
@@ -195,7 +194,7 @@ class App extends Component {
                             </Input.Group>
                         </Space>
                     </Space>
-                    <Divider orientation="left">Examples</Divider>
+                    <Divider orientation="left" style={{marginBottom: "20px", marginTop: "40px"}}>Examples</Divider>
                     <DirectoryTree
                         showLine={false}
                         showIcon={false}
@@ -203,7 +202,6 @@ class App extends Component {
                         treeData={treeData}
                         height={300}
                         />
-                    {/* </Space> */}
                 </Card>
                 <Canvas FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
                     uMin={this.state.uMin} uMax={this.state.uMax}
