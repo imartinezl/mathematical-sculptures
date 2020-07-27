@@ -45,6 +45,7 @@ class Canvas extends Component {
         this.PZ = -8;
         this.THETA = -Math.PI / 5;
         this.PHI = Math.PI / 6;
+        this.resetLook()
 
         this.colorBack= '#f1f1f1';
         this.colorShape= '#000000';
@@ -53,16 +54,19 @@ class Canvas extends Component {
         this.showAxis = false;
         this.colorBackground = false;
         if(this.colorBackground) document.body.style.background = this.colorBack;
-        window.addEventListener('resize', this.resize, false);
     }
     componentDidMount() {
         ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
         this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
     }
     
-    componentDidUpdate() {
-        console.log("component did update")
-        this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
+    componentDidUpdate(prevProps) {
+        if( JSON.stringify(prevProps) !== JSON.stringify(this.props)){
+            console.log("canvas did update")
+            window.cancelAnimationFrame(this.request);
+            this.uniforms = this.initMatrix(this.canvas)
+            this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
+        }
     }
     
     init = () => {
@@ -80,35 +84,25 @@ class Canvas extends Component {
         this.draw(canvas, gl, shaderProgram, uniforms, attributes);
     }
 
-    resize = () => {
-        let ratio = this.canvas.width / this.canvas.height;
-        let canvas_height = window.innerHeight;
-        let canvas_width = canvas_height * ratio;
-        if(canvas_width > window.innerWidth){
-            canvas_width = window.innerWidth;
-            canvas_height = canvas_width/ratio;
+    resize = (canvas) => {
+        let resized = false
+        let realToCSSPixels = window.devicePixelRatio;
+    
+        let displayWidth  = Math.floor(canvas.clientWidth  * realToCSSPixels);
+        let displayHeight = Math.floor(canvas.clientHeight * realToCSSPixels);
+    
+        if (canvas.width  !== displayWidth || canvas.height !== displayHeight) {
+            canvas.width  = displayWidth;
+            canvas.height = displayHeight;
+            resized = true
         }
-        
-        // let canvas_width = window.innerWidth;
-        // let canvas_height = canvas_width / ratio;
-        // if(canvas_height > window.innerHeight){
-        //     canvas_height = window.innerHeight;
-        //     canvas_width = canvas_height*ratio;
-        // }
-
-        this.canvas.style.width = canvas_width + 'px';
-        this.canvas.style.height = canvas_height + 'px';
-        
-        // this.canvas.width = window.innerWidth;
-        // this.canvas.height = window.innerHeight;
-        // ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
-        // this.run(this.canvas, this.gl, this.shaderProgram, this.uniforms)
+        return resized
     }
 
     initCanvas = () => {
         let canvas = document.getElementById('canvas');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // canvas.width = window.innerWidth;
+        // canvas.height = window.innerHeight;
         let gl = canvas.getContext('experimental-webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true });
         return {canvas, gl}
     }
@@ -152,20 +146,29 @@ class Canvas extends Component {
         let zMin = z_formula.evaluate({u: uMin, v:vMin})
         let zMax = z_formula.evaluate({u: uMax, v:vMax})
         let zMean = (zMin + zMax)/2
+
+        // let xSum = 0, ySum = 0, zSum = 0
+
         for (let j = 0; j <= vPoints; j++) {
             for (let i = 0; i <= uPoints; i++) {
                 let u = uStep * i
                 let v = vStep * j
                 let x = x_formula.evaluate({ u: u, v: v });// - xMean;
                 let y = y_formula.evaluate({ u: u, v: v });// - yMean;
-                let z = z_formula.evaluate({ u: u, v: v }) - zMean;
+                let z = z_formula.evaluate({ u: u, v: v });// - zMean;
                 x *= scl
                 y *= scl
                 z *= scl
+                // xSum += x
+                // ySum += y
+                // zSum += z
                 vertices.push(x, y, z)
             }
         }
         let n = vertices.length / 3
+        // this.rX = xSum / n
+        // this.rY = ySum / n
+        // this.rZ = zSum / n
         return {vertices, n, uPoints, vPoints}
     }
 
@@ -536,6 +539,17 @@ class Canvas extends Component {
     }
 
     draw = (canvas, gl, shaderProgram, uniforms, attributes) => {
+        
+        let resized = this.resize(canvas);
+        if (resized) uniforms = this.initMatrix(canvas)
+
+        // clear canvas
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        // gl.viewport(0.0, 0.0, canvas.width, canvas.height);
+        [r, g, b] = this.hexToRgb(this.colorBack)
+        gl.clearColor(r, g, b, 1.0);
+        gl.clearDepth(1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         if (!this.drag) {
             this.dX *= this.AMORTIZATION;
@@ -576,20 +590,13 @@ class Canvas extends Component {
         gl.enable(gl.BLEND);
         gl.disable(gl.DEPTH_TEST);
 
-        // clear canvas
-        //gl.clearColor(0.1, 0.1, 0.1, 1.0);
-        [r, g, b] = this.hexToRgb(this.colorBack)
-        gl.clearColor(r, g, b, 1.0);
-        gl.clearDepth(1.0);
-        gl.viewport(0.0, 0.0, canvas.width, canvas.height);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         this.shadersUniforms(gl, shaderProgram, uniforms)
 
-        this.drawPoints(gl, attributes.n)
+        //this.drawPoints(gl, attributes.n)
         this.drawLines(gl, attributes.uPoints, attributes.vPoints)
 
-        window.requestAnimationFrame(this.draw.bind(this, canvas, gl, shaderProgram, uniforms, attributes));
+        this.request = window.requestAnimationFrame(this.draw.bind(this, canvas, gl, shaderProgram, uniforms, attributes));
     }
 
     hexToRgb = (hex) => 
@@ -609,9 +616,10 @@ class Canvas extends Component {
         if(this.colorBackground) document.body.style.background = color.color;
     };
 
+
     resetLook = (ev) => {
-        this.PX = 2;
-        this.PY = 1;
+        this.PX = 0; // 2
+        this.PY = 0; // 1
         this.PZ = -8;
         this.THETA = -Math.PI / 5;
         this.PHI = Math.PI / 6;
@@ -621,19 +629,21 @@ class Canvas extends Component {
         this.PY = 0;
         this.THETA = 0;
         this.PHI = 0;
-        ev.preventDefault()
+        ev.preventDefault();
     }
     lookXZ = (ev) => {
         this.PX = 0;
         this.PY = 0;
         this.THETA = 0;
         this.PHI = Math.PI / 2;
+        ev.preventDefault();
     }
     lookYZ = (ev) => {
         this.PX = 0;
         this.PY = 0;
         this.THETA = Math.PI / 2;
         this.PHI = 0;
+        ev.preventDefault();
     }
     zoomPlus = (ev) => {
         this.zoom = true
@@ -647,20 +657,17 @@ class Canvas extends Component {
         this.applyZoom()
         ev.preventDefault();
     }
-
-
-
     toggleAxis = () => {
         this.showAxis = !this.showAxis
     }
 
     download = (canvas, filename) => {
-        // add text
+        
         let canvas2D = document.getElementById("text")
         let ctx2D = canvas2D.getContext("2d")
         canvas2D.width = canvas.width
         canvas2D.height = canvas.height
-        let ctxWeb = canvas.getContext("experimental-webgl")
+        // let ctxWeb = canvas.getContext("experimental-webgl")
 
         ctx2D.fillStyle = "#ffffff"
         ctx2D.fillRect(0, 0, canvas.width, canvas.height)
@@ -670,11 +677,7 @@ class Canvas extends Component {
         let sep = 20
         let [r,g,b] = this.hexToRgb(this.colorBack)
         let textColor =  255*(r*0.299 + g*0.587 + b*0.114) > 186 ? "#000000" : "#ffffff"
-        let fontSize = "26px"
-        let fontStyle = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
-        let fontText = fontSize + ' ' + fontStyle.split(',').join(', ' + fontSize)
-        // ctx2D.font = fontText
-        ctx2D.font = "20px Roboto"
+        ctx2D.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
         ctx2D.fillStyle = textColor;
         ctx2D.textAlign = "right"
         ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
@@ -684,7 +687,6 @@ class Canvas extends Component {
         ctx2D.fillText("z = "+this.props.FZ, px, canvas2D.height-py+sep*2);
         ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
         ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
-        console.log(fontText, ctx2D.font)
 
         let lnk = document.createElement('a'), ev;
         lnk.download = filename;
@@ -704,7 +706,7 @@ class Canvas extends Component {
     render() {
         return (
             <div>
-                <canvas id="canvas" style={{background: 'white', cursor: "crosshair"}}></canvas>
+                <canvas id="canvas" style={{background: 'white', cursor: "crosshair", display: "block", width: "100vw", height: "100vh"}}></canvas>
                 <canvas id="text"></canvas>
                 <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
                 <Tooltip title="Reset View">
