@@ -2,9 +2,11 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 module.exports = {
     entry: './src/index.js',
-    mode: 'production',
+    mode: 'development',
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
@@ -19,6 +21,7 @@ module.exports = {
             title: 'Morphing',
             template: 'src/index.html'
         }),
+        // new BundleAnalyzerPlugin({ openAnalyzer: false })
     ],
     // node: { fs: "empty" },
     module: {
