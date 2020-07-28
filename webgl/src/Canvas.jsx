@@ -1,7 +1,8 @@
 import Formula from 'fparser';
 import React, { Component } from "react";
-import { Button, Space, Tooltip } from 'antd';
-import { DownloadOutlined, BorderInnerOutlined, CompassOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { Button, Space, Tooltip, Dropdown, Menu, notification } from 'antd';
+import { DownloadOutlined, BorderInnerOutlined, CompassOutlined, CompressOutlined,
+    PlusOutlined, MinusOutlined, FullscreenOutlined, FullscreenExitOutlined, QuestionOutlined } from '@ant-design/icons';
 
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
@@ -54,6 +55,10 @@ class Canvas extends Component {
         this.showAxis = false;
         this.colorBackground = false;
         if(this.colorBackground) document.body.style.background = this.colorBack;
+
+        this.state = {
+            isFullScreen: false
+        }
     }
     componentDidMount() {
         ({canvas:this.canvas, gl:this.gl, shaderProgram: this.shaderProgram, uniforms: this.uniforms} = this.init())
@@ -616,6 +621,20 @@ class Canvas extends Component {
         if(this.colorBackground) document.body.style.background = color.color;
     };
 
+    openNotification = () => {
+        notification.info({
+            key: '1',
+            message: 'Navigation Help',
+            description: 
+            <div>
+                <b>Rotate</b> click + drag <br/>
+                <b>Pan</b> hold ctrl + drag <br/>
+                <b>Zoom in / out</b> scroll up / down <br/>
+            </div>
+            // onClick: () => {console.log('Notification Clicked!');},
+        });
+    };
+
 
     resetLook = (ev) => {
         this.PX = 0; // 2
@@ -661,7 +680,24 @@ class Canvas extends Component {
         this.showAxis = !this.showAxis
     }
 
-    download = (canvas, filename) => {
+    handleMenuClick = (ev) => {
+        // console.log('click', ev);
+        let withFormula = ev.key !== "1"
+        this.download(this.canvas, 'figure.png', withFormula)
+    }
+
+    menu = (
+        <Menu onClick={this.handleMenuClick}>
+          <Menu.Item key="1">
+            Only image
+          </Menu.Item>
+          <Menu.Item key="2">
+            With equations
+          </Menu.Item>
+        </Menu>
+    );
+    
+    download = (canvas, filename, withFormula=true) => {
         
         let canvas2D = document.getElementById("text")
         let ctx2D = canvas2D.getContext("2d")
@@ -672,6 +708,7 @@ class Canvas extends Component {
         ctx2D.fillStyle = "#ffffff"
         ctx2D.fillRect(0, 0, canvas.width, canvas.height)
         ctx2D.drawImage(canvas, 0, 0)
+
         let px = 30
         let py = 120
         let sep = 20
@@ -681,12 +718,14 @@ class Canvas extends Component {
         ctx2D.fillStyle = textColor;
         ctx2D.textAlign = "right"
         ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
-        ctx2D.textAlign = "left"
-        ctx2D.fillText("x = "+this.props.FX, px, canvas2D.height-py+sep*0);
-        ctx2D.fillText("y = "+this.props.FY, px, canvas2D.height-py+sep*1);
-        ctx2D.fillText("z = "+this.props.FZ, px, canvas2D.height-py+sep*2);
-        ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
-        ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
+        if(withFormula){    
+            ctx2D.textAlign = "left"
+            ctx2D.fillText("x = "+this.props.FX, px, canvas2D.height-py+sep*0);
+            ctx2D.fillText("y = "+this.props.FY, px, canvas2D.height-py+sep*1);
+            ctx2D.fillText("z = "+this.props.FZ, px, canvas2D.height-py+sep*2);
+            ctx2D.fillText(this.props.uMin/Math.PI + "π < u < " + this.props.uMax/Math.PI + "π", px, canvas2D.height-py+sep*4);
+            ctx2D.fillText(this.props.vMin/Math.PI + "π < v < " + this.props.vMax/Math.PI + "π", px, canvas2D.height-py+sep*5);
+        }
 
         let lnk = document.createElement('a'), ev;
         lnk.download = filename;
@@ -703,42 +742,87 @@ class Canvas extends Component {
         ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
     }
 
+    fullScreen = () => {
+        let isFullScreen = 1 >= outerHeight - innerHeight
+        this.setState({isFullScreen: !isFullScreen})
+        if(isFullScreen){
+            this.closeFullScreen()
+        }else{
+            this.openFullScreen()
+        }
+        // this.isFullScreen = !this.isFullScreen
+    }
+    openFullScreen = () => {
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+    }
+    closeFullScreen = () => {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
+    }
+
     render() {
         return (
             <div>
                 <canvas id="canvas" style={{background: 'white', cursor: "crosshair", display: "block", width: "100vw", height: "100vh"}}></canvas>
                 <canvas id="text"></canvas>
                 <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
-                <Tooltip title="Reset View">
-                    <Button type="default" shape="circle" icon={<CompassOutlined />} onClick={this.resetLook}/>
-                </Tooltip>
-                <Tooltip title="Look XY Plane">
-                    <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
-                </Tooltip>
-                <Tooltip title="Look XZ Plane">
-                    <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
-                </Tooltip>
-                <Tooltip title="Look YZ Plane">
-                    <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
-                </Tooltip>
-                <Tooltip title="Show/Hide Axis">
-                    <Button type="default" shape="circle" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
-                </Tooltip>
-                <Tooltip title="Download Image">
-                    <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
-                </Tooltip>
-                <Tooltip title="Zoom In">
-                    <Button type="default" shape="circle" icon={<PlusOutlined />} onClick={this.zoomPlus} />
-                </Tooltip>
-                <Tooltip title="Zoom Out">
-                    <Button type="default" shape="circle" icon={<MinusOutlined />} onClick={this.zoomMinus} />
-                </Tooltip>
-                <Tooltip title="Shape Color">
-                    <span><ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/></span>
-                </Tooltip>
-                <Tooltip title="Background Color">
-                    <span><ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
-                </Tooltip>
+                    <Tooltip title="Help">
+                        <Button type="default" shape="circle" icon={<QuestionOutlined />} onClick={this.openNotification}/>
+                    </Tooltip>
+                    <Tooltip title="Reset View">
+                        <Button type="default" shape="circle" icon={<CompressOutlined />} onClick={this.resetLook}/>
+                    </Tooltip>
+                    <Tooltip title="Look XY Plane">
+                        <Button type="default" shape="circle" onClick={this.lookXY}>XY</Button>
+                    </Tooltip>
+                    <Tooltip title="Look XZ Plane">
+                        <Button type="default" shape="circle" onClick={this.lookXZ}>XZ</Button>
+                    </Tooltip>
+                    <Tooltip title="Look YZ Plane">
+                        <Button type="default" shape="circle" onClick={this.lookYZ}>YZ</Button>
+                    </Tooltip>
+                    <Tooltip title="Show/Hide Axis">
+                        <Button type="default" shape="circle" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
+                    </Tooltip>
+                    {/* <Tooltip title="Download Image">
+                        <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={()=>this.download(this.canvas, 'figure.png')} />
+                    </Tooltip> */}
+                </Space>
+                <Space style={{position: "absolute", right:"4%", bottom:"4%"}}>
+                    <Dropdown overlay={this.menu} placement="bottomCenter">
+                        <Button type="default" shape="circle" icon={<DownloadOutlined />} onClick={e => e.preventDefault()} />
+                    </Dropdown>
+                    <Tooltip title="Zoom In">
+                        <Button type="default" shape="circle" icon={<PlusOutlined />} onClick={this.zoomPlus} />
+                    </Tooltip>
+                    <Tooltip title="Zoom Out">
+                        <Button type="default" shape="circle" icon={<MinusOutlined />} onClick={this.zoomMinus} />
+                    </Tooltip>
+                    <Tooltip title="Full Screen">
+                        <Button type="default" shape="circle" icon={this.state.isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} onClick={this.fullScreen} />
+                    </Tooltip>
+                    <Tooltip title="Shape Color">
+                        <span><ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/></span>
+                    </Tooltip>
+                    <Tooltip title="Background Color">
+                        <span><ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
+                    </Tooltip>
                 </Space>
             </div>
         );
