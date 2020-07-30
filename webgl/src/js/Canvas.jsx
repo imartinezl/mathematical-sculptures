@@ -1,14 +1,16 @@
-import Formula from 'fparser';
 import React, { Component } from "react";
+import { BrowserView, MobileView, isBrowser, isMobile } from "react-device-detect";
+import Formula from 'fparser';
+
 import { Button, Space, Tooltip, Dropdown, Menu, notification } from 'antd';
 import { DownloadOutlined, BorderInnerOutlined, CompassOutlined, CompressOutlined,
     PlusOutlined, MinusOutlined, FullscreenOutlined, FullscreenExitOutlined, QuestionOutlined } from '@ant-design/icons';
 
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
-import './colorPicker.css';
-import 'antd/dist/antd.css';
-import './antDesign.css';
+import '../css/colorPicker.css';
+// import 'antd/dist/antd.css';
+import '../css/antDesign.css';
 
 class Canvas extends Component {
     constructor(props) {
