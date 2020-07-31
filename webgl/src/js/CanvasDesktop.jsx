@@ -12,7 +12,7 @@ import '../css/colorPicker.css';
 // import 'antd/dist/antd.css';
 import '../css/antDesign.css';
 
-class Canvas extends Component {
+class CanvasDesktop extends Component {
     constructor(props) {
         super(props)
 
@@ -81,7 +81,6 @@ class Canvas extends Component {
         let shaderProgram = this.initShaders(gl)
         let uniforms = this.initMatrix(canvas)
         this.mouseEvents(canvas);
-        //this.touchEvents(canvas);
         return {canvas, gl, shaderProgram, uniforms}
     }
     run = (canvas, gl, shaderProgram, uniforms) => {
@@ -347,16 +346,6 @@ class Canvas extends Component {
         this.PZ = Math.max(-45, Math.min(0, this.PZ));
     }
 
-    keyDown = (ev) => {
-        // console.log("keyDown", ev)
-        //ev.preventDefault();
-        return false;
-    }
-
-    keyUp = (ev) => {
-        // console.log("keyUp")
-    }
-
     mouseDown = (ev) => {
         // console.log("mouseDown", ev)
         let pageX = ev.pageX;
@@ -422,112 +411,6 @@ class Canvas extends Component {
         canvas.addEventListener("mouseout", this.mouseUp, false);
         canvas.addEventListener("mousemove", ev => this.mouseMove(ev, canvas), false);
         canvas.addEventListener("wheel", this.mouseWheel, false);
-    }
-    
-    touchStart = (ev) => {
-        console.log("touchStart", ev)
-        let pageX = ev.touches[0].pageX;
-        let pageY = ev.touches[0].pageY;
-        if(ev.ctrlKey){
-            this.translate = true;
-            this.aX = pageX;
-            this.aY = pageY;
-        }else{
-            this.drag = true;
-            this.pX = pageX;
-            this.pY = pageY;
-        }
-        ev.preventDefault();
-        return false;
-    }
-
-    touchEnd = (ev) => {
-        console.log("touchEnd", ev)
-        this.drag = false;
-        this.translate = false;
-    }
-
-    touchMove = (ev, canvas) => {
-        //console.log("touchMove", ev)
-        let pageX = ev.touches[0].pageX;
-        let pageY = ev.touches[0].pageY;
-        if (this.translate){
-            this.tX = (pageX - this.aX) * 2 * Math.PI / canvas.width;
-            this.tY = -(pageY - this.aY) * 2 * Math.PI / canvas.height;
-            this.PX += this.tX;
-            this.PY += this.tY;
-            this.aX = pageX;
-            this.aY = pageY;
-        }else if (this.drag){
-            this.dX = (pageX - this.pX) * 2 * Math.PI / canvas.width;
-            this.dY = (pageY - this.pY) * 2 * Math.PI / canvas.height;
-            this.THETA += this.dX;
-            this.PHI += this.dY;
-            this.pX = pageX;
-            this.pY = pageY;
-        }
-        ev.preventDefault();
-    }
-
-    pointerDown = (ev) => {
-        //console.log("pointerDown", ev)
-        this.evCache.push(ev)
-    }
-
-    pointerMove = (ev) => {
-        //console.log("pointerMove", ev)
-        // ev.target.style.border = "dashed"
-        for (let i = 0; i < this.evCache.length; i++) {
-            if(ev.pointerId == this.evCache[i].pointerId){
-                this.evCache[i] = ev;
-                break;
-            }
-        }
-        if (this.evCache.length == 2){
-            let curDiff = Math.abs(this.evCache[0].clientX - this.evCache[1].clientX);
-            if(this.prevDiff > 0){
-                if(curDiff < this.prevDiff){
-                // Pinch moving OUT
-                console.log("pinch out")
-                }
-                if(curDiff < this.prevDiff){
-                // Pinch moving IN
-                console.log("pinch in")
-                }
-            }
-            this.prevDiff = curDiff;
-        }
-    }
-
-    pointerUp = (ev) => {
-        //console.log("pointerUp", ev)
-        this.removeEvent(ev)
-        // ev.target.style.border = null
-        if(this.evCache.length < 2){
-            this.prevDiff = -1;
-        }
-    }
-    
-    removeEvent = (ev) => {
-        for (let i = 0; i < this.evCache.length; i++) {
-            if(this.evCache[i].pointerId == ev.pointerId){
-                this.evCache.splice(i, 1);
-                break
-            }
-        }
-    }
-
-    touchEvents = (canvas) => {
-        canvas.addEventListener("touchstart", this.touchStart, false);
-        canvas.addEventListener("touchend", this.touchEnd, false);
-        canvas.addEventListener("touchmove", ev => this.touchMove(ev, canvas), false);
-        canvas.addEventListener("pointerdown", this.pointerDown, false)
-        canvas.addEventListener("pointermove", this.pointerMove, false)
-        canvas.addEventListener("pointerup", this.pointerUp, false)
-        canvas.addEventListener("pointercancel", this.pointerUp, false)
-        canvas.addEventListener("pointerout", this.pointerUp, false)
-        canvas.addEventListener("pointerleave", this.pointerUp, false)
-
     }
 
     drawPoints = (gl, n) => {
@@ -831,4 +714,4 @@ class Canvas extends Component {
     }
 }
 
-export default Canvas;
+export default CanvasDesktop;
