@@ -5,11 +5,11 @@ import { Card, Input, Tree, InputNumber, Form, Divider, Space, Layout, Button, T
 const { DirectoryTree } = Tree;
 const { Sider } = Layout;
 const { Title } = Typography;
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-
+import { LeftOutlined, RightOutlined, MenuFoldOutlined, MenuUnfoldOutlined, MenuOutlined } from '@ant-design/icons';
+import '../css/antDesign.css';
 
 import treeData from './TreeData.jsx'
-import Canvas from "./Canvas.jsx";
+import CanvasDesktop from "./CanvasDesktop.jsx";
 import Formula from 'fparser';
 
 
@@ -269,9 +269,11 @@ class App extends Component {
                             type="default" 
                             shape="circle" 
                             onClick={this.toggleCollapse}
-                            icon={this.state.collapsed ? <RightOutlined /> : <LeftOutlined />} 
+                            // icon={this.state.collapsed ? <RightOutlined /> : <LeftOutlined />} 
+                            // icon={this.state.collapsed ? <MenuOutlined /> : <MenuFoldOutlined /> } 
+                            icon={<MenuOutlined />} 
                             style={{position: "absolute", left: this.state.collapsed ? "30px" : "320px", top: "38px", transition: "all 0.25s ease-out 0s"}}/>
-                        <Canvas 
+                        <CanvasDesktop 
                             FX={this.state.FX} FY={this.state.FY} FZ={this.state.FZ}
                             uMin={this.state.uMin} uMax={this.state.uMax}
                             vMin={this.state.vMin} vMax={this.state.vMax}
