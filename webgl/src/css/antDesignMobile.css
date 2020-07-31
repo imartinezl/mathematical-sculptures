@@ -24,7 +24,25 @@
 
 .am-drawer-sidebar {
     width: 90%;
-    min-width: 300px;
-    max-width: 500px;
+    min-width: 280px;
+    max-width: 400px;
     padding: 0;
 }
+
+.ant-tree.ant-tree-directory.directory-tree-mobile.ant-tree-icon-hide.ant-tree-block-node {
+    font-size: 16px;
+    padding-left: 20px;
+}
+
+.directory-tree-mobile .ant-tree-treenode {
+    /* background-color: red; */
+    padding: 4px 0 4px 0;
+}
+
+
+/* .ant-tree .ant-tree-treenode {
+}
+
+.ant-divider-inner-text {
+    font-size: 18px;
+} */
