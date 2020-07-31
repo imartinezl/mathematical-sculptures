@@ -2,11 +2,11 @@ import React, { Component } from "react";
 import { BrowserView, MobileView, isBrowser, isMobile } from "react-device-detect";
 
 // Desktop
-import { Card, Input, Tree, InputNumber, Form, Divider, Space, Layout, Button, Typography } from 'antd';
+import { Input, Tree, InputNumber, Form, Divider, Space, Layout, Button, Typography } from 'antd';
 const { DirectoryTree } = Tree;
-const { Sider } = Layout;
 const { Title } = Typography;
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, MenuOutlined } from '@ant-design/icons';
+import '../css/antDesign.css';
 
 // Mobile
 import { Drawer, List, NavBar, Icon } from 'antd-mobile';
@@ -14,8 +14,8 @@ import { Drawer, List, NavBar, Icon } from 'antd-mobile';
 import '../css/antDesignMobile.css';
 
 
+
 import treeData from './TreeData.jsx'
-import Canvas from "./Canvas.jsx";
 import CanvasMobile from "./CanvasMobile.jsx";
 import Formula from 'fparser';
 
@@ -36,7 +36,7 @@ class App extends Component {
             vMin: 0,
             vMax: 2 * Math.PI,
 
-            collapsed: false
+            collapsed: true
         }
         this.formRef = React.createRef();
         
@@ -162,14 +162,13 @@ class App extends Component {
     render = () => {
 
         const sidebar = (
-            <div
-                style={{ padding: "30px" }}
-            >
-                <Divider orientation="left">
+            <div>
+                <Divider orientation="left" style={{marginTop: 30}}>
                     Parametric Equations
                 </Divider>
                 <Form 
                     ref={this.formRef} 
+                    style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 1}}
                     layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
                     initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: 'v'}} autoComplete="off"
                 >
@@ -201,7 +200,7 @@ class App extends Component {
                 <Divider orientation="left">
                     Parameter Range
                 </Divider>
-                <Space direction="vertical" size="small">
+                <Space direction="vertical" size="small" style={{paddingLeft: 20, paddingRight: 20}}>
                     <Input.Group compact>
                         <InputNumber 
                             size="large"
@@ -234,6 +233,15 @@ class App extends Component {
                             onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                     </Input.Group>
                 </Space>
+                <Divider orientation="left">Examples</Divider>
+                <DirectoryTree
+                    className = "directory-tree-mobile"
+                    showLine={false}
+                    showIcon={false}
+                    onSelect={this.onSelect}
+                    treeData={treeData}
+                    height={300}
+                    />
             </div>
         );
       
@@ -243,13 +251,16 @@ class App extends Component {
                 shape="circle" 
                 size= 'large'
                 onClick={this.toggleCollapse}
-                icon={this.state.collapsed ? <RightOutlined /> : <LeftOutlined />} 
-                style={{position: "absolute", left: this.state.collapsed ? "5%" : "80%", top: "4%", transition: "all 0.25s ease-out 0s", zIndex: 5}}
+                // icon={this.state.collapsed ? <RightOutlined /> : <LeftOutlined />} 
+                icon={<MenuOutlined />} 
+                // style={{position: "absolute", left: this.state.collapsed ? "5%" : "85%", top: "25px", transition: "all 0.25s ease-out 0s", zIndex: 5}}
+                style={{position: "absolute", top: "25px", left: "4%", transition: "all 0.25s ease-out 0s", zIndex: 2}}
             />      
             <Drawer
                 className="my-drawer"
                 style={{ minHeight: document.documentElement.clientHeight }}
                 // enableDragHandle
+                position = "left"
                 contentStyle={{ color: '#A6A6A6', textAlign: 'center' }}
                 sidebar={sidebar}
                 open={!this.state.collapsed}
