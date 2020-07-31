@@ -1,4 +1,4 @@
-.rc-color-picker-trigger {
+.mobile .rc-color-picker-wrap .rc-color-picker-trigger {
     border: 2px solid #2c2c2c;
     padding: 2px;
     border-radius: 50%;
@@ -7,7 +7,7 @@
     box-shadow: 0px 0px 0px 2px #fff;
 }
 
-.rc-color-picker-wrap {
+.mobile .rc-color-picker-wrap {
     background: #fff;
     border-radius: 50%;
 }

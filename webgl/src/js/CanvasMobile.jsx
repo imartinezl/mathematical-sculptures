@@ -635,10 +635,10 @@ class CanvasMobile extends Component {
                         <Button type="default" shape="circle" size="large" icon={<BorderInnerOutlined />} onClick={this.toggleAxis} />
                     </Tooltip>
                     <Tooltip title="Shape Color" placement="left">
-                        <span><ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/></span>
+                        <span class="mobile"><ColorPicker alpha={this.alphaShape*100} color={this.colorShape} onChange={this.handleColorShape} placement="topRight"/></span>
                     </Tooltip>
                     <Tooltip title="Background Color" placement="left">
-                        <span><ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
+                        <span class="mobile"><ColorPicker class="mobile" color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
                     </Tooltip>
                 </Space>
             </div>
