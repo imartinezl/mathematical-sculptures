@@ -120,12 +120,12 @@ class CanvasMobile extends Component {
         let {FX, FY, FZ, uMin, uMax, vMin, vMax} = this.props
         //let uMin = 0.0
         //let uMax = 2 * Math.PI
-        let uPoints = 60
+        let uPoints = 130
         let uStep = (uMax - uMin) / uPoints
 
         //let vMin = 0.0
         //let vMax = Math.PI
-        let vPoints = 120
+        let vPoints = 130
         let vStep = (vMax - vMin) / vPoints
 
         // console.log("PRE", FX, FY, FZ)
