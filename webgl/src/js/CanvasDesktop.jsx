@@ -52,7 +52,7 @@ class CanvasDesktop extends Component {
 
         this.colorBack= '#f1f1f1';
         this.colorShape= '#000000';
-        this.alphaShape= 0.4
+        this.alphaShape= 0.1
 
         this.showAxis = false;
         this.colorBackground = false;
@@ -119,12 +119,12 @@ class CanvasDesktop extends Component {
         let {FX, FY, FZ, uMin, uMax, vMin, vMax} = this.props
         //let uMin = 0.0
         //let uMax = 2 * Math.PI
-        let uPoints = 60
+        let uPoints = 130
         let uStep = (uMax - uMin) / uPoints
 
         //let vMin = 0.0
         //let vMax = Math.PI
-        let vPoints = 120
+        let vPoints = 130
         let vStep = (vMax - vMin) / vPoints
 
         // console.log("PRE", FX, FY, FZ)
@@ -438,8 +438,10 @@ class CanvasDesktop extends Component {
         // gl.viewport(0.0, 0.0, canvas.width, canvas.height);
         [r, g, b] = this.hexToRgb(this.colorBack)
         gl.clearColor(r, g, b, 1.0);
+        // gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clearDepth(1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //gl.colorMask(true, true, true, false);
 
         if (!this.drag) {
             this.dX *= this.AMORTIZATION;
@@ -476,7 +478,8 @@ class CanvasDesktop extends Component {
 
         // enable alpha blending
         gl.enable(gl.DEPTH_TEST);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
         gl.disable(gl.DEPTH_TEST);
 
@@ -665,6 +668,7 @@ class CanvasDesktop extends Component {
         return (
             <div>
                 <canvas id="canvas" style={{background: 'white', cursor: "crosshair", display: "block", width: "100vw", height: "100vh"}}></canvas>
+                {/* <canvas id="canvas" style={{cursor: "crosshair", display: "block", width: "100vw", height: "100vh"}}></canvas> */}
                 <canvas id="text"></canvas>
                 <Space style={{position: "absolute", left:"4%", bottom:"4%"}}>
                     <Tooltip title="Help">
