@@ -186,7 +186,18 @@ const treeData = [
                 title: 'Texturing and Spiralling',
                 key: '2-4',
                 selectable: false,
-                children: []
+                children: [
+                {
+                    title: 'Texturing and spiralling 095',
+                    key: '2-4-0',
+                    FX: 'u*(cos(4*u)/4 + sin(v)*cos(u))',
+                    FY: 'u*(sin(4*u)/4 + sin(v)*sin(u))',
+                    FZ: 'cos(v)',
+                    uMin: 0,
+                    uMax: 2 * Math.PI,
+                    vMin: 0,
+                    vMax: Math.PI,
+                },]
             },
             {
                 title: 'Bending and Spiralling',
