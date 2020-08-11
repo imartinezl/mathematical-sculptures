@@ -527,7 +527,7 @@ class CanvasDesktop extends Component {
     resetLook = (ev) => {
         this.PX = 0; // 2
         this.PY = 0; // 1
-        this.PZ = -8;
+        this.PZ = -6;
         this.THETA = -Math.PI / 5;
         this.PHI = Math.PI / 6;
     }

@@ -23,18 +23,28 @@ import Formula from 'fparser';
 class App extends Component {
     constructor(props) {
         super(props)
+
+        this.initialValues = {
+            FX: '2*cos(u)',
+            FY: '(v/2)*sin(sin(2*u))',
+            FZ: 'cos(10*v)/10 + sin(3*u)/3 + v',
+            uMin: 0,
+            uMax: 2 * Math.PI,
+            vMin: 0.5 * Math.PI,
+            vMax: Math.PI,
+        }
         
         this.state = {
-            FX: 'cos(u)',
-            FY: 'sin(u)',
-            FZ: 'v',
+            FX: this.initialValues.FX,
+            FY: this.initialValues.FY,
+            FZ: this.initialValues.FZ,
             validFX: true,
             validFY: true,
             validFZ: true,
-            uMin: 0,
-            uMax: 2 * Math.PI,
-            vMin: 0,
-            vMax: 2 * Math.PI,
+            uMin: this.initialValues.uMin,
+            uMax: this.initialValues.uMax,
+            vMin: this.initialValues.vMin,
+            vMax: this.initialValues.vMax,
 
             collapsed: true
         }
@@ -186,7 +196,7 @@ class App extends Component {
                     ref={this.formRef} 
                     style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 1}}
                     layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
-                    initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: 'v'}} autoComplete="off"
+                    initialValues={this.initialValues} autoComplete="off"
                 >
                     <Form.Item 
                         name={'FX'} 

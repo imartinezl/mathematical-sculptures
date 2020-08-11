@@ -16,18 +16,28 @@ import Formula from 'fparser';
 class App extends Component {
     constructor(props) {
         super(props)
+
+        this.initialValues = {
+            FX: '2*cos(u)',
+            FY: '(v/2)*sin(sin(2*u))',
+            FZ: 'cos(10*v)/10 + sin(3*u)/3 + v',
+            uMin: 0,
+            uMax: 2 * Math.PI,
+            vMin: 0.5 * Math.PI,
+            vMax: Math.PI,
+        }
         
         this.state = {
-            FX: 'cos(u)',
-            FY: 'sin(u)',
-            FZ: 'v',
+            FX: this.initialValues.FX,
+            FY: this.initialValues.FY,
+            FZ: this.initialValues.FZ,
             validFX: true,
             validFY: true,
             validFZ: true,
-            uMin: 0,
-            uMax: 2 * Math.PI,
-            vMin: 0,
-            vMax: 2 * Math.PI,
+            uMin: this.initialValues.uMin,
+            uMax: this.initialValues.uMax,
+            vMin: this.initialValues.vMin,
+            vMax: this.initialValues.vMax,
 
             collapsed: false,
         }
@@ -206,7 +216,7 @@ class App extends Component {
                         <Form 
                             ref={this.formRef} 
                             layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
-                            initialValues={{FX: 'cos(u)', FY: 'sin(u)', FZ: 'v'}} autoComplete="off"
+                            initialValues={this.initialValues} autoComplete="off"
                         >
                             <Form.Item 
                                 name={'FX'} 
@@ -244,27 +254,27 @@ class App extends Component {
                                 <Input.Group compact>
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70, zIndex:2 }}
-                                        defaultValue={0} min={-100} max={100} step={1}
+                                        defaultValue={0} min={-100} max={100} step={0.5}
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleUMin} value={this.state.uMin / Math.PI}
                                         />
                                     <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70 }}
-                                        defaultValue={2} min={-100} max={100} step={1}
+                                        defaultValue={2} min={-100} max={100} step={0.5}
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleUMax} value={this.state.uMax / Math.PI} />
                                 </Input.Group>
                                 <Input.Group compact>
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70, zIndex:2 }}
-                                        defaultValue={0} min={-100} max={100} step={1}
+                                        defaultValue={0} min={-100} max={100} step={0.5}
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleVMin} value={this.state.vMin / Math.PI} />
                                     <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="< v <" />
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70 }}
-                                        defaultValue={2} min={-100} max={100} step={1}
+                                        defaultValue={2} min={-100} max={100} step={0.5}
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                                 </Input.Group>
