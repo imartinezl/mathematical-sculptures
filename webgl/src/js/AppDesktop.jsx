@@ -32,6 +32,7 @@ class App extends Component {
             collapsed: false,
         }
         this.formRef = React.createRef();
+        document.addEventListener('keydown', this.keydown);
         
     }
     componentDidUpdate() {
@@ -152,6 +153,21 @@ class App extends Component {
         });
     }
 
+    keydown = (ev) => {
+        if(ev.keyCode === 69){
+            this.toggleExamples();
+        }
+    }
+
+    toggleExamples = () => {
+        var el = document.getElementById("examples");
+        if (el.style.display === "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+
     onBreakpoint = (broken) => {
         console.log("broken", broken)
         if(broken){
@@ -254,14 +270,16 @@ class App extends Component {
                                 </Input.Group>
                             </Space>
                         </Space>
-                        <Divider orientation="left" style={{marginBottom: "20px", marginTop: "40px"}}>Examples</Divider>
-                        <DirectoryTree
-                            showLine={false}
-                            showIcon={false}
-                            onSelect={this.onSelect}
-                            treeData={treeData}
-                            height={300}
-                            />
+                        <div id="examples" style={{display: "none"}}>
+                            <Divider orientation="left" style={{marginBottom: "20px", marginTop: "40px"}}>Examples</Divider>
+                            <DirectoryTree
+                                showLine={false}
+                                showIcon={false}
+                                onSelect={this.onSelect}
+                                treeData={treeData}
+                                height={300}
+                                />
+                        </div>
                     </Card>
                 </Sider>
                 <Layout>

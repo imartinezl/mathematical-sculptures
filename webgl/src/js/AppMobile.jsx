@@ -39,6 +39,7 @@ class App extends Component {
             collapsed: true
         }
         this.formRef = React.createRef();
+        document.addEventListener('keydown', this.keydown);
         
     }
     componentDidUpdate() {
@@ -159,6 +160,21 @@ class App extends Component {
         });
     }
 
+    keydown = (ev) => {
+        if(ev.keyCode === 69){
+            this.toggleExamples();
+        }
+    }
+
+    toggleExamples = () => {
+        var el = document.getElementById("examples");
+        if (el.style.display === "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+
     render = () => {
 
         const sidebar = (
@@ -233,15 +249,17 @@ class App extends Component {
                             onChange={this.handleVMax} value={this.state.vMax / Math.PI} />
                     </Input.Group>
                 </Space>
-                <Divider orientation="left">Examples</Divider>
-                <DirectoryTree
-                    className = "directory-tree-mobile"
-                    showLine={false}
-                    showIcon={false}
-                    onSelect={this.onSelect}
-                    treeData={treeData}
-                    height={300}
-                    />
+                <div id="examples" style={{display: "none"}}>
+                    <Divider orientation="left">Examples</Divider>
+                    <DirectoryTree
+                        className = "directory-tree-mobile"
+                        showLine={false}
+                        showIcon={false}
+                        onSelect={this.onSelect}
+                        treeData={treeData}
+                        height={300}
+                        />
+                </div>
             </div>
         );
       
