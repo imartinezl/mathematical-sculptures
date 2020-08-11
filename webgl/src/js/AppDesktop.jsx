@@ -205,7 +205,7 @@ class App extends Component {
                         hoverable
                         bordered={false} 
                         title="Mathematical Sculptures"
-                        style={{ position:"relative", width: 334, left:"30px", top:"25px"}}
+                        style={{ position:"relative", width: 335, left:"30px", top:"25px"}}
                         // style={{ position:"absolute", zIndex: 10, width: 334, left:"4%", top:"4%"}}
                         // title={<Title level={4}>Morphing</Title>}
                     >
