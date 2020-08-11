@@ -194,7 +194,7 @@ class App extends Component {
                     <Card 
                         hoverable
                         bordered={false} 
-                        title="Morphing"
+                        title="Mathematical Sculptures"
                         style={{ position:"relative", width: 334, left:"30px", top:"25px"}}
                         // style={{ position:"absolute", zIndex: 10, width: 334, left:"4%", top:"4%"}}
                         // title={<Title level={4}>Morphing</Title>}
