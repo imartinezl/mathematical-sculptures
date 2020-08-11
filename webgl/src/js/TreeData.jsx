@@ -187,17 +187,18 @@ const treeData = [
                 key: '2-4',
                 selectable: false,
                 children: [
-                {
-                    title: 'Texturing and spiralling 095',
-                    key: '2-4-0',
-                    FX: 'u*(cos(4*u)/4 + sin(v)*cos(u))',
-                    FY: 'u*(sin(4*u)/4 + sin(v)*sin(u))',
-                    FZ: 'cos(v)',
-                    uMin: 0,
-                    uMax: 2 * Math.PI,
-                    vMin: 0,
-                    vMax: Math.PI,
-                },]
+                    {
+                        title: 'Texturing and spiralling 095',
+                        key: '2-4-0',
+                        FX: 'u*(cos(4*u)/4 + sin(v)*cos(u))',
+                        FY: 'u*(sin(4*u)/4 + sin(v)*sin(u))',
+                        FZ: 'cos(v)',
+                        uMin: 0,
+                        uMax: 2 * Math.PI,
+                        vMin: 0,
+                        vMax: Math.PI,
+                    },
+                ]
             },
             {
                 title: 'Bending and Spiralling',
@@ -355,7 +356,19 @@ const treeData = [
                 title: 'Looptecture F - Endo Shuhei Architect Institute',
                 key: '4-5',
                 selectable: false,
-                children: []
+                children: [
+                    {
+                        title: 'Looptecture F 189 - 8',
+                        key: '4-5-8',
+                        FX: '2*cos(u)',
+                        FY: '(v/2)*sin(sin(2*u))',
+                        FZ: 'cos(10*v)/12-sin(10*v)/12 + sin(3*u)/3 + v',
+                        uMin: 0,
+                        uMax: 2 * Math.PI,
+                        vMin: 0.5 * Math.PI,
+                        vMax: Math.PI,
+                    },
+                ]
             },
             {
                 title: 'Mercedes-Benz Museum - UNStudio',
