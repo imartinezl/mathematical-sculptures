@@ -1,4 +1,4 @@
-# morphing
+# Mathematical Sculptures
 
-Check the demo [here](https://imartinezl.github.io/morphing/) (available for desktop and mobile)
+Check the demo [here](https://imartinezl.github.io/mathematical-sculptures/) (available for desktop and mobile)
 ![](docs/screenshot.png)
