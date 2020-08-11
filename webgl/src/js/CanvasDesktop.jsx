@@ -350,7 +350,7 @@ class CanvasDesktop extends Component {
         // console.log("mouseDown", ev)
         let pageX = ev.pageX;
         let pageY = ev.pageY;
-        if(ev.ctrlKey){
+        if(ev.ctrlKey || ev.metaKey){
             this.translate = true;
             this.aX = pageX;
             this.aY = pageY;
