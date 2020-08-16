@@ -46,8 +46,8 @@ class App extends Component {
         
     }
     componentDidUpdate() {
-        console.log("app desktop update")
-        console.log(this.state)
+        // console.log("app desktop update")
+        // console.log(this.state)
     }
     validateFormula = (F) => {
         let acceptableVars = ['u', 'v']
@@ -63,7 +63,7 @@ class App extends Component {
             // console.log(a)
             return true
         } catch (error) {
-            console.error(error)
+            // console.error(error)
             return false
         }
     }
@@ -157,7 +157,7 @@ class App extends Component {
     }
 
     toggleCollapse = () => {
-        console.log(this.state.collapsed)
+        // console.log(this.state.collapsed)
         this.setState({
             collapsed: !this.state.collapsed,
         });
@@ -179,7 +179,7 @@ class App extends Component {
     }
 
     onBreakpoint = (broken) => {
-        console.log("broken", broken)
+        // console.log("broken", broken)
         if(broken){
             this.setState({collapsed: true});
         }else{
@@ -207,12 +207,11 @@ class App extends Component {
                         title="Mathematical Sculptures"
                         style={{ position:"relative", width: 335, left:"30px", top:"25px"}}
                         // style={{ position:"absolute", zIndex: 10, width: 334, left:"4%", top:"4%"}}
-                        // title={<Title level={4}>Morphing</Title>}
                     >
             
-                        <Divider orientation="left" style={{marginBottom: "30px"}}>
+                        {/* <Divider orientation="left" style={{marginBottom: "30px"}}>
                             Parametric Equations
-                        </Divider>
+                        </Divider> */}
                         <Form 
                             ref={this.formRef} 
                             layout={{ labelCol: { span: 8 }, wrapperCol: { span: 16 } }}
