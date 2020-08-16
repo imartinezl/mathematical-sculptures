@@ -4,7 +4,7 @@ import Formula from 'fparser';
 
 import { Button, Space, Tooltip, Dropdown, Menu, notification } from 'antd';
 import { DownloadOutlined, BorderInnerOutlined, CompassOutlined, CompressOutlined,
-    PlusOutlined, MinusOutlined, FullscreenOutlined, FullscreenExitOutlined, QuestionOutlined } from '@ant-design/icons';
+    PlusOutlined, MinusOutlined, FullscreenOutlined, FullscreenExitOutlined, QuestionOutlined, GithubOutlined } from '@ant-design/icons';
 
 import 'rc-color-picker/assets/index.css';
 import ColorPicker from 'rc-color-picker';
@@ -602,10 +602,11 @@ class CanvasDesktop extends Component {
         let sep = 20
         let [r,g,b] = this.hexToRgb(this.colorBack)
         let textColor =  255*(r*0.299 + g*0.587 + b*0.114) > 186 ? "#000000" : "#ffffff"
-        ctx2D.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+        ctx2D.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+        ctx2D.font = '16px "Segoe UI"'
         ctx2D.fillStyle = textColor;
         ctx2D.textAlign = "right"
-        ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
+        // ctx2D.fillText("github.com/imartinezl", canvas2D.width-px, canvas2D.height-20);
         if(withFormula){    
             ctx2D.textAlign = "left"
             ctx2D.fillText("x = "+this.props.FX, px, canvas2D.height-py+sep*0);
@@ -711,6 +712,12 @@ class CanvasDesktop extends Component {
                     </Tooltip>
                     <Tooltip title="Background Color">
                         <span><ColorPicker color={this.colorBack} onChange={this.handleColorBack} placement="topRight"/></span>
+                    </Tooltip>
+                </Space>
+                <Space style={{position: "absolute", right:"4%", top:"4%"}}>
+                    <Tooltip title="Get the code">
+                        <Button type="default" shape="circle" icon={<GithubOutlined/>} 
+                        onClick={e => window.open("https://github.com/imartinezl/mathematical-sculptures", '_blank')} />
                     </Tooltip>
                 </Space>
             </div>
