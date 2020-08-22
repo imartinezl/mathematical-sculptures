@@ -22,7 +22,7 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
         new HtmlWebpackPlugin({
-            title: 'Morphing',
+            title: 'MathSculptures',
             template: 'src/index.html'
         }),
         new BundleAnalyzerPlugin({ openAnalyzer: false }),
