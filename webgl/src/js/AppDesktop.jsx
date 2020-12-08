@@ -257,7 +257,7 @@ class App extends Component {
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleUMin} value={this.state.uMin / Math.PI}
                                         />
-                                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="< u <" />
+                                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none', }} placeholder="<u<" />
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70 }}
                                         defaultValue={2} min={-100} max={100} step={0.5}
@@ -270,7 +270,7 @@ class App extends Component {
                                         defaultValue={0} min={-100} max={100} step={0.5}
                                         formatter={value => `${value}π`} parser={value => value.replace('π', '')}
                                         onChange={this.handleVMin} value={this.state.vMin / Math.PI} />
-                                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="< v <" />
+                                    <Input style={{ width: 60, textAlign: 'center', pointerEvents: 'none' }} placeholder="<v<" />
                                     <InputNumber 
                                         style={{ textAlign: 'center', width: 70 }}
                                         defaultValue={2} min={-100} max={100} step={0.5}
